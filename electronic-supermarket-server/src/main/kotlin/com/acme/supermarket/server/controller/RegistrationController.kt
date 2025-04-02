@@ -17,8 +17,8 @@ class RegistrationController (
 
     @PostMapping("/register")
     fun registerUser(@RequestBody request: RegistrationRequest): ResponseEntity<UserResponse> {
-        val user = userService.registerUser(request)
+        val response = userService.registerUser(request)
 
-        return ResponseEntity.ok(UserResponse(user.userUuid, user.name))
+        return ResponseEntity.ok(response)
     }
 }

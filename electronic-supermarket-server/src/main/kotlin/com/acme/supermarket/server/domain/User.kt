@@ -15,6 +15,22 @@ open class User (
     @Column(nullable = false)
     val name: String,
 
+    @Column(nullable = false)
+    val nickname: String,
+
+    @Column(nullable = false)
     val rsaPublicKey: String,
+
+    @Column(nullable = false)
     val ecdsaPublicKey: String,
+
+    @Column(nullable = false)
+    val cardType: String,
+
+    @Column(nullable = false)
+    val cardNumber: String,
+
+    @Column(nullable = false)
+    val cardExpirationDate: String,
+
 )

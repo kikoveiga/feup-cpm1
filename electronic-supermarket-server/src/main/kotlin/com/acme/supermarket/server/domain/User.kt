@@ -15,7 +15,7 @@ open class User (
     @Column(nullable = false)
     val name: String,
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     val nickname: String,
 
     @Column(nullable = false)

@@ -1,13 +1,11 @@
 package com.acme.supermarket.server.controller
 
+import com.acme.supermarket.server.domain.User
 import com.acme.supermarket.server.dto.RegistrationRequest
 import com.acme.supermarket.server.dto.UserResponse
 import com.acme.supermarket.server.service.UserService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
@@ -20,5 +18,15 @@ class RegistrationController (
         val response = userService.registerUser(request)
 
         return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/customer/{userUuid}")
+    fun getCustomerByUuid(@PathVariable userUuid: String): ResponseEntity<User> {
+        val customer = userService.findByUserUuid(userUuid)
+        return if (customer != null) {
+            ResponseEntity.ok(customer)
+        } else {
+            ResponseEntity.notFound().build()
+        }
     }
 }

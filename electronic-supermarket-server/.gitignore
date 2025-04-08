@@ -41,3 +41,6 @@ out/
 
 gradle.properties
 local.properties
+
+*.mv.db
+*.trace.db

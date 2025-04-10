@@ -7,25 +7,31 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.feup.jtp.client_app.presentation.theme.ClientappTheme
+import com.feup.jtp.client_app.domain.model.Product
+import com.feup.jtp.client_app.domain.interactor.ScanProductUseCase
+import com.feup.jtp.client_app.util.RSAUtils
 
 class MainActivity : ComponentActivity() {
+
+    private val rsaPublicKey = RSAUtils.loadPublicKey()
 
     private val qrScanLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK && result.data != null) {
             val scannedData = result.data?.getStringExtra("SCAN_RESULT") ?: result.data?.getStringExtra("qr_result")
-            scannedData?.let { showScannedResult(it) }
+            scannedData?.let {
+                val encryptedData = it.toByteArray()
+                decodeQRCode(encryptedData)
+            }
         }
     }
 
@@ -37,12 +43,6 @@ class MainActivity : ComponentActivity() {
             ClientappTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MainScreen(innerPadding = innerPadding)
-                    /*
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    */
                 }
             }
         }
@@ -53,9 +53,23 @@ class MainActivity : ComponentActivity() {
         qrScanLauncher.launch(intent)
     }
 
-    private fun showScannedResult(result: String) {
-        // Handle displaying the scanned result (e.g., updating UI or adding to basket)
-        println("Scanned result: $result") // Placeholder for now
+    private fun decodeQRCode(encryptedData: ByteArray) {
+        val scanProductUseCase = ScanProductUseCase(rsaPublicKey)
+        val product: Product? = scanProductUseCase.execute(encryptedData)
+
+        if (product != null) {
+            showScannedResult(product)
+        } else {
+            showError("Failed to decode the QR code.")
+        }
+    }
+
+    private fun showScannedResult(product: Product) {
+        println("Product decoded: ${product.name} - ${product.price}€ (UUID: ${product.id})")
+    }
+
+    private fun showError(message: String) {
+        println("Error: $message")
     }
 }
 
@@ -84,21 +98,5 @@ fun MainScreen(innerPadding: PaddingValues) {
         scannedResult?.let {
             Text(text = "Scanned result: $it")
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ClientappTheme {
-        Greeting("Android")
     }
 }

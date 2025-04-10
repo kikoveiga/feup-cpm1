@@ -1,6 +1,5 @@
-package com.feup.jtp.client_app.ui.theme
+package com.feup.jtp.client_app.presentation.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

@@ -44,3 +44,5 @@ local.properties
 
 *.mv.db
 *.trace.db
+
+src/main/resources/keys/supermarket-private.pem

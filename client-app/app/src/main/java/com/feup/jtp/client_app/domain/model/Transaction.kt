@@ -2,7 +2,9 @@ package com.feup.jtp.client_app.domain.model
 
 data class Transaction(
     val id: String,
-    val user: User,
+    val date: String,
     val products: List<Product>,
-    val voucherUser: Voucher? = null,
+    val price: Double,
+    val discount: Double,
+    val voucherUsed: Voucher? = null,
 )

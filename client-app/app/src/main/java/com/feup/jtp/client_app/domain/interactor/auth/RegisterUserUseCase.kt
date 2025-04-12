@@ -21,8 +21,9 @@ class RegisterUserUseCase(
 
             val userId = UUID.randomUUID().toString()
             val user = User(
-                id = userId,
+                uuid = userId,
                 name = name,
+                nickname = nickname,
                 paymentCard = paymentCard,
                 publicRSAKey = rsaKeyPair.toString(),
                 publicECKey = ecKeyPair.toString()

@@ -28,7 +28,7 @@ class ScanProductUseCase(
             buffer.get(nameBytes)
             val name = String(nameBytes, Charsets.UTF_8)
 
-            return Product(uuid, name, price)
+            return Product(uuid.toString(), name, price)
         } catch (e:Exception) {
             e.printStackTrace()
             return null

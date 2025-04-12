@@ -15,10 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.feup.jtp.client_app.presentation.theme.ClientappTheme
+import dagger.hilt.android.AndroidEntryPoint
 import com.feup.jtp.client_app.domain.model.Product
 import com.feup.jtp.client_app.domain.interactor.ScanProductUseCase
 import com.feup.jtp.client_app.util.RSAUtils
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val rsaPublicKey = RSAUtils.loadPublicKey()

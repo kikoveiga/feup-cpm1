@@ -31,7 +31,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit =
         Retrofit.Builder()
-            .baseUrl("localhost:3000")
+            .baseUrl("https://localhost:3000")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()

@@ -1,8 +1,6 @@
 package com.feup.jtp.checkout_terminal.data.remote
 
-import com.feup.jtp.checkout_terminal.data.model.dto.CartDto
-import com.feup.jtp.checkout_terminal.data.model.dto.TransactionRequestDto
-import com.feup.jtp.checkout_terminal.data.model.dto.TransactionResponseDto
+import com.feup.jtp.checkout_terminal.data.model.dto.TransactionToServer
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -12,8 +10,8 @@ interface TerminalApi {
 
     @POST("/api/checkout")
     suspend fun checkoutCart(
-        @Body request: TransactionRequestDto
-    ): TransactionResponseDto
+        @Body request: TransactionToServer
+    ): TransactionToServer
 
     @GET("/api/cart")
     suspend fun getCartForUser(

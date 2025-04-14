@@ -52,6 +52,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.hilt.android)
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation(libs.zxing.android.embedded)
 
 

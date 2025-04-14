@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
                             e.printStackTrace()
                         }
                     }
+
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         Box(modifier = Modifier.padding(innerPadding)) {
                             when (currentScreen) {
@@ -39,8 +40,6 @@ class MainActivity : ComponentActivity() {
                                     QRScannerScreen(onResult = { success ->
                                     currentScreen = if (success) "success" else "failure"
                                 })
-
-
 
                                 "success" -> SuccessScreen(onTimeout = {
                                     currentScreen = "scanner"

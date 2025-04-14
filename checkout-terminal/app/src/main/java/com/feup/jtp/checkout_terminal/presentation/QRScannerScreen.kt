@@ -47,8 +47,8 @@ fun QRScannerScreen(
 
         AndroidView(
             factory = { ctx ->
-                val barcodeView = CompoundBarcodeView(ctx).apply {
-                    barcodeView.decoderFactory = DefaultDecoderFactory(listOf(BarcodeFormat.QR_CODE))
+                CompoundBarcodeView(ctx).apply {
+                    decoderFactory = DefaultDecoderFactory(listOf(BarcodeFormat.QR_CODE))
                     decodeContinuous { result ->
                         if (!hasScanned) {
                             hasScanned = true
@@ -58,15 +58,12 @@ fun QRScannerScreen(
                             }
                         }
                     }
-
-                    post {
-                        resume()
-                    }
+                    post { resume() }
                 }
-                barcodeView
             },
             modifier = Modifier
         )
+
     } else {
         Text("Waiting for camera permission...")
     }

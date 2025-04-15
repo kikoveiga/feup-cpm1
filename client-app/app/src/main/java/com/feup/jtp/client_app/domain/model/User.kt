@@ -1,10 +1,12 @@
 package com.feup.jtp.client_app.domain.model
 
+import java.security.KeyPair
+
 data class User(
-    val uuid: String,
+    val uuid: String? = null,
     val name: String,
     val nickname: String,
     val paymentCard: PaymentCard,
-    val publicRSAKey: String,
-    val publicECKey: String,
+    val rsaKeyPair: KeyPair,
+    val ecKeyPair: KeyPair,
 )

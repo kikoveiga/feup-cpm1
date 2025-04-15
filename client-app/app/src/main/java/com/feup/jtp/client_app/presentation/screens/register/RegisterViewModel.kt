@@ -1,14 +1,11 @@
 package com.feup.jtp.client_app.presentation.screens.register
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feup.jtp.client_app.data.local.UserPrefs
+import com.feup.jtp.client_app.domain.interactor.auth.RegisterUserUseCase
 import com.feup.jtp.client_app.domain.model.PaymentCard
-import com.feup.jtp.client_app.domain.model.User
-import com.feup.jtp.client_app.domain.repository.UserRepository
+import com.feup.jtp.client_app.domain.model.PaymentCardType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -17,8 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val userRepository: UserRepository,
-    @ApplicationContext private val context: Context
+    private val registerUserUseCase: RegisterUserUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterUiState())
@@ -32,12 +28,16 @@ class RegisterViewModel @Inject constructor(
         _uiState.update { it.copy(nickname = nickname) }
     }
 
+    fun onPaymentCardTypeChanged(paymentCardType: PaymentCardType) {
+        _uiState.update { it.copy(paymentCardType = paymentCardType) }
+    }
+
     fun onPaymentCardNumberChanged(paymentCardNumber: String) {
         _uiState.update { it.copy(paymentCardNumber = paymentCardNumber) }
     }
 
-    fun onExpirationDateChanged(expirationDate: String) {
-        _uiState.update { it.copy(expirationDate = expirationDate) }
+    fun onPaymentCardExpirationDateChanged(paymentCardExpirationDate: String) {
+        _uiState.update { it.copy(paymentCardExpirationDate = paymentCardExpirationDate) }
     }
 
     fun clearError() {
@@ -45,46 +45,18 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun registerUser(onRegistered: () -> Unit = {}) {
-        val user = User(
-            uuid = "",
-            name = _uiState.value.name,
-            nickname = _uiState.value.nickname,
-            paymentCard = PaymentCard(
-                id = "",
-                type = "",
-                number = _uiState.value.paymentCardNumber,
-                expirationDate = _uiState.value.expirationDate
-            ),
-            publicRSAKey = "mocked_rsa_key",
-            publicECKey = "mocked_ec_key"
-        )
-
         viewModelScope.launch {
 
             _uiState.update { it.copy(showValidationErrors = true) }
-            val result = userRepository.registerUser(user)
+            val result = _uiState.value.let {
+                registerUserUseCase.invoke(it.name, it.nickname, PaymentCard(it.paymentCardType, it.paymentCardNumber, it.paymentCardExpirationDate))
+            }
 
             if (result.isSuccess) {
-                val registeredUser = result.getOrNull()
-                _uiState.update { it.copy(user = registeredUser) }
-
-                registeredUser?.uuid?.let { uuid ->
-                    UserPrefs.setRegistered(context, uuid)
-                }
-
                 onRegistered()
             } else {
                 val error = result.exceptionOrNull()
                 _uiState.update { it.copy(error = error?.message) }
-            }
-        }
-    }
-
-    fun loadTransactions() {
-        viewModelScope.launch {
-            _uiState.value.user?.uuid?.let { it ->
-                val transactions = userRepository.getTransactions(it)
-                _uiState.update { it.copy(transactions = transactions) }
             }
         }
     }

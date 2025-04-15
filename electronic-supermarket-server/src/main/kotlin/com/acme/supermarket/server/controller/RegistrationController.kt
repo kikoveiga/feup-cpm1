@@ -1,7 +1,7 @@
 package com.acme.supermarket.server.controller
 
 import com.acme.supermarket.server.domain.User
-import com.acme.supermarket.server.dto.RegistrationRequest
+import com.acme.supermarket.server.dto.RegisterUserRequestDto
 import com.acme.supermarket.server.dto.UserResponse
 import com.acme.supermarket.server.service.UserService
 import org.springframework.http.ResponseEntity
@@ -14,7 +14,7 @@ class RegistrationController (
 ) {
 
     @PostMapping("/register")
-    fun registerUser(@RequestBody request: RegistrationRequest): ResponseEntity<UserResponse> {
+    fun registerUser(@RequestBody request: RegisterUserRequestDto): ResponseEntity<UserResponse> {
         val response = userService.registerUser(request)
 
         return ResponseEntity.ok(response)

@@ -9,14 +9,14 @@ fun User.toRegisterUserRequestDto(): RegisterUserRequestDto =
     RegisterUserRequestDto(
         name = name,
         nickname = nickname,
-        paymentCard = paymentCard.toPaymentCardDto(),
-        publicRSAKey = publicRSAKey,
-        publicECKey = publicECKey
+        rsaPublicKey = rsaKeyPair.public.toString(),
+        ecPublicKey = ecKeyPair.public.toString(),
+        paymentCardDto = paymentCard.toPaymentCardDto()
     )
 
 fun PaymentCard.toPaymentCardDto(): PaymentCardDto =
     PaymentCardDto(
-        type = type,
+        type = type.toString(),
         number = number,
         expirationDate = expirationDate
     )

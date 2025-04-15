@@ -1,11 +1,14 @@
-package com.feup.jtp.client_app.presentation.viewmodel
+package com.feup.jtp.client_app.presentation.screens.register
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feup.jtp.client_app.data.local.UserPrefs
 import com.feup.jtp.client_app.domain.model.PaymentCard
 import com.feup.jtp.client_app.domain.model.User
 import com.feup.jtp.client_app.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -13,12 +16,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class UserViewModel @Inject constructor(
-    private val userRepository: UserRepository
+class RegisterViewModel @Inject constructor(
+    private val userRepository: UserRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(UserUiState())
-    val uiState: StateFlow<UserUiState> = _uiState
+    private val _uiState = MutableStateFlow(RegisterUiState())
+    val uiState: StateFlow<RegisterUiState> = _uiState
 
     fun onNameChanged(name: String) {
         _uiState.update { it.copy(name = name) }
@@ -40,7 +44,7 @@ class UserViewModel @Inject constructor(
         _uiState.update { it.copy(error = null) }
     }
 
-    fun registerUser() {
+    fun registerUser(onRegistered: () -> Unit = {}) {
         val user = User(
             uuid = "",
             name = _uiState.value.name,
@@ -63,6 +67,12 @@ class UserViewModel @Inject constructor(
             if (result.isSuccess) {
                 val registeredUser = result.getOrNull()
                 _uiState.update { it.copy(user = registeredUser) }
+
+                registeredUser?.uuid?.let { uuid ->
+                    UserPrefs.setRegistered(context, uuid)
+                }
+
+                onRegistered()
             } else {
                 val error = result.exceptionOrNull()
                 _uiState.update { it.copy(error = error?.message) }

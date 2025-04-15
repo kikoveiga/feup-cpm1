@@ -1,16 +1,21 @@
-package com.feup.jtp.client_app.presentation.screen
+package com.feup.jtp.client_app.presentation.screens.register
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -18,17 +23,18 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.feup.jtp.client_app.presentation.viewmodel.UserViewModel
+import androidx.navigation.NavController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
+fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hiltViewModel()) {
     val state = viewModel.uiState.collectAsState()
-    var showDatePicker by remember { mutableStateOf(false) }
 
     if (state.value.error != null) {
         AlertDialog(
@@ -40,17 +46,6 @@ fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
             },
             title = { Text("Error") },
             text = { Text(state.value.error!!) }
-        )
-    }
-
-    if (showDatePicker) {
-        DatePickerModal(
-            onDateSelected = { millis ->
-                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                val formattedDate = millis?.let { formatter.format(Date(it)) } ?: ""
-                viewModel.onExpirationDateChanged(formattedDate)
-            },
-            onDismiss = { showDatePicker = false }
         )
     }
 
@@ -82,20 +77,15 @@ fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
-            value = state.value.expirationDate,
-            onValueChange = {},
-            label = { Text("Expiration Date") },
-            isError = state.value.showValidationErrors && state.value.expirationDate.length < 5,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDatePicker = true },
-            readOnly = true
+        DatePickerFieldToModal(
+            selectedDateFormatted = state.value.expirationDate,
+            onDateSelectedFormatted = viewModel::onExpirationDateChanged
         )
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = viewModel::registerUser) {
+        Button(onClick = { viewModel.registerUser(onRegistered = onRegistered) }) {
             Text("Register")
         }
 
@@ -112,6 +102,43 @@ fun UserScreen(viewModel: UserViewModel = hiltViewModel()) {
                 Text("Transaction: ${transaction.price}€")
             }
         }
+    }
+}
+
+@Composable
+fun DatePickerFieldToModal(selectedDateFormatted: String, onDateSelectedFormatted: (String) -> Unit, modifier: Modifier = Modifier) {
+    var showModal by remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = selectedDateFormatted,
+        onValueChange = { },
+        label = { Text("Expiration Date") },
+        placeholder = { Text("DD/MM/YYYY") },
+        trailingIcon = {
+            Icon(Icons.Default.DateRange, contentDescription = "Select date")
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(pass = PointerEventPass.Initial)
+                    val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                    if (upEvent != null) {
+                        showModal = true
+                    }
+                }
+            },
+        readOnly = true
+    )
+
+    if (showModal) {
+        DatePickerModal(
+            onDateSelected = {
+                val formatted = it?.let { convertMillisToDate(it) } ?: ""
+                onDateSelectedFormatted(formatted)
+            },
+            onDismiss = { showModal = false }
+        )
     }
 }
 
@@ -139,6 +166,13 @@ fun DatePickerModal(
             }
         }
     ) {
-        DatePicker(state = datePickerState)
+        DatePicker(
+            state = datePickerState
+        )
     }
+}
+
+fun convertMillisToDate(millis: Long): String {
+    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
 }

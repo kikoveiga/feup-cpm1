@@ -6,7 +6,7 @@ import com.feup.jtp.client_app.domain.model.Voucher
 
 interface UserRepository {
 
-    suspend fun registerUser(user: User): User
+    suspend fun registerUser(user: User): Result<User>
     suspend fun getVouchers(uuid: String): List<Voucher>
     suspend fun getTransactions(uuid: String): List<Transaction>
 }

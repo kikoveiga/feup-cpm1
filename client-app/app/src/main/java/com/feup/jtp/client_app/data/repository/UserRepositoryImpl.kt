@@ -13,10 +13,16 @@ class UserRepositoryImpl @Inject constructor(
     private val api: SupermarketApi
 ) : UserRepository {
 
-    override suspend fun registerUser(user: User): User {
+    override suspend fun registerUser(user: User): Result<User> {
         val requestDto = user.toRegisterUserRequestDto()
-        val responseDto = api.registerUser(requestDto)
-        return user.copy(uuid = responseDto.uuid)
+
+        return try {
+            val responseDto = api.registerUser(requestDto)
+            val registeredUser = user.copy(uuid = responseDto.uuid)
+            Result.success(registeredUser)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun getVouchers(uuid: String): List<Voucher> =

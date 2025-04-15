@@ -10,4 +10,6 @@ data class UserUiState(
     val expirationDate: String = "",
     val user: User? = null,
     val transactions: List<Transaction> = emptyList(),
+    val error: String? = null,
+    val showValidationErrors: Boolean = false,
 )

@@ -36,6 +36,10 @@ class UserViewModel @Inject constructor(
         _uiState.update { it.copy(expirationDate = expirationDate) }
     }
 
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
+    }
+
     fun registerUser() {
         val user = User(
             uuid = "",
@@ -52,8 +56,17 @@ class UserViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            val registeredUser = userRepository.registerUser(user)
-            _uiState.update { it.copy(user = registeredUser) }
+
+            _uiState.update { it.copy(showValidationErrors = true) }
+            val result = userRepository.registerUser(user)
+
+            if (result.isSuccess) {
+                val registeredUser = result.getOrNull()
+                _uiState.update { it.copy(user = registeredUser) }
+            } else {
+                val error = result.exceptionOrNull()
+                _uiState.update { it.copy(error = error?.message) }
+            }
         }
     }
 

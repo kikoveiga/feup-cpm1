@@ -27,7 +27,6 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -78,8 +77,8 @@ fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hilt
         )
 
         DatePickerFieldToModal(
-            selectedDateFormatted = state.value.expirationDate,
-            onDateSelectedFormatted = viewModel::onExpirationDateChanged
+            selectedDateFormatted = state.value.paymentCardExpirationDate,
+            onDateSelectedFormatted = viewModel::onPaymentCardExpirationDateChanged
         )
 
 
@@ -87,20 +86,6 @@ fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hilt
 
         Button(onClick = { viewModel.registerUser(onRegistered = onRegistered) }) {
             Text("Register")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        state.value.user?.let {
-            Button(onClick = viewModel::loadTransactions) {
-                Text("Load Transactions")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            state.value.transactions.forEach { transaction ->
-                Text("Transaction: ${transaction.price}€")
-            }
         }
     }
 }

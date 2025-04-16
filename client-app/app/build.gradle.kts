@@ -4,14 +4,15 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinAndroidKsp)
     alias(libs.plugins.hiltAndroid)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
-    namespace = "com.feup.jtp.client_app"
+    namespace = "com.feup.client"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.feup.jtp.client_app"
+        applicationId = "com.feup.client"
         minSdk = 29
         targetSdk = 35
         versionCode = 1
@@ -54,6 +55,9 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.hilt.android)
     implementation(libs.zxing.android.embedded)
+    implementation(libs.androidx.datastore)
+    implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.hilt.android)

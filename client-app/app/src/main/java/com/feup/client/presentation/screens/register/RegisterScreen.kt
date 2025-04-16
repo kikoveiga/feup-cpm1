@@ -98,7 +98,7 @@ fun DatePickerFieldToModal(selectedDateFormatted: String, onDateSelectedFormatte
         value = selectedDateFormatted,
         onValueChange = { },
         label = { Text("Expiration Date") },
-        placeholder = { Text("DD/MM/YYYY") },
+        placeholder = { Text("MM/YY") },
         trailingIcon = {
             Icon(Icons.Default.DateRange, contentDescription = "Select date")
         },
@@ -158,6 +158,6 @@ fun DatePickerModal(
 }
 
 fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val formatter = SimpleDateFormat("MM/yy", Locale.getDefault())
     return formatter.format(Date(millis))
 }

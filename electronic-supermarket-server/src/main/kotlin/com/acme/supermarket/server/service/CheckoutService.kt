@@ -36,8 +36,14 @@ class CheckoutService(
         var accumulatedDiscount = getAccumulatedDiscount(transaction.userUuid)
 
         if (transaction.useAccumulatedDiscount) {
-            totalValue = totalValue.subtract(accumulatedDiscount)
-            accumulatedDiscount = BigDecimal.ZERO
+            if (totalValue < accumulatedDiscount){
+                accumulatedDiscount = accumulatedDiscount.subtract(totalValue)
+                totalValue = BigDecimal.ZERO
+            }
+            else {
+                totalValue = totalValue.subtract(accumulatedDiscount)
+                accumulatedDiscount = BigDecimal.ZERO
+            }
         }
 
         var voucherDiscount = BigDecimal.ZERO

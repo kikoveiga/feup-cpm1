@@ -29,6 +29,7 @@ class UserService (
         val userUuid = UUID.randomUUID().toString()
 
         validateRequest(request)
+        val cleanedCardNumber = request.paymentCardDto.number.replace(Regex("[^\\d]"), "")
 
         val user = User(
             userUuid = userUuid,
@@ -37,7 +38,7 @@ class UserService (
             rsaPublicKey = request.rsaPublicKey,
             ecPublicKey = request.ecPublicKey,
             cardType = request.paymentCardDto.type,
-            cardNumber = request.paymentCardDto.number,
+            cardNumber = cleanedCardNumber,
             cardExpirationDate = request.paymentCardDto.expirationDate
         )
 
@@ -97,8 +98,8 @@ class UserService (
     }
 
     private fun isValidCardNumber(cardNumber: String): Boolean {
-
-        return cardNumber.length in 13..19 && isValidLuhn(cardNumber)
+        val cleanedNumber = cardNumber.replace(" ", "")
+        return cleanedNumber.length in 13..19 && isValidLuhn(cleanedNumber)
     }
 
     private fun isValidLuhn(cardNumber: String): Boolean {

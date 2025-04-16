@@ -33,4 +33,6 @@ open class User (
     @Column(nullable = false)
     val cardExpirationDate: String,
 
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    val vouchers: List<Voucher> = emptyList()
 )

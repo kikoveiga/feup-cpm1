@@ -3,57 +3,49 @@ package com.feup.client.data.mapper
 import com.feup.client.data.local.SerializableUser
 import com.feup.client.data.model.dto.PaymentCardDto
 import com.feup.client.data.model.dto.RegisterUserRequestDto
+import com.feup.client.domain.crypto.CryptoManager
 import com.feup.client.domain.model.PaymentCard
 import com.feup.client.domain.model.PaymentCardType
 import com.feup.client.domain.model.User
-import java.security.KeyFactory
 import java.security.KeyPair
-import java.security.spec.PKCS8EncodedKeySpec
-import java.security.spec.X509EncodedKeySpec
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
-fun User.toRegisterUserRequestDto(): RegisterUserRequestDto =
+fun User.toRegisterUserRequestDto(cryptoManager: CryptoManager): RegisterUserRequestDto =
     RegisterUserRequestDto(
         name = name,
         nickname = nickname,
-        rsaPublicKey = rsaKeyPair.public.toString(),
-        ecPublicKey = ecKeyPair.public.toString(),
+        rsaPublicKey = cryptoManager.encodePublicKeyToBase64(rsaKeyPair.public),
+        ecPublicKey = cryptoManager.encodePublicKeyToBase64(ecKeyPair.public),
         paymentCardDto = paymentCard.toPaymentCardDto()
     )
 
-@OptIn(ExperimentalEncodingApi::class)
-fun User.toSerializable(): SerializableUser =
+fun User.toSerializable(cryptoManager: CryptoManager): SerializableUser =
     SerializableUser(
         name = name,
         nickname = nickname,
-        rsaPublicKey = Base64.encode(rsaKeyPair.public.encoded),
-        rsaPrivateKey = Base64.encode(rsaKeyPair.private.encoded),
-        ecPublicKey = Base64.encode(ecKeyPair.public.encoded),
-        ecPrivateKey = Base64.encode(ecKeyPair.private.encoded),
+        rsaPublicKey = cryptoManager.encodePublicKeyToBase64(rsaKeyPair.public),
+        ecPublicKey = cryptoManager.encodePublicKeyToBase64(ecKeyPair.public),
         paymentCardType = paymentCard.type.toString(),
         paymentCardNumber = paymentCard.number,
         paymentCardExpirationDate = paymentCard.expirationDate,
         uuid = uuid ?: "",
-        supermarketRsaPublicKey = supermarketRsaPublicKey ?: ""
+        supermarketRsaPublicKey = supermarketRsaPublicKey?.let { cryptoManager.encodePublicKeyToBase64(it) } ?: ""
     )
 
-@OptIn(ExperimentalEncodingApi::class)
-fun SerializableUser.toUser(): User =
+fun SerializableUser.toUser(cryptoManager: CryptoManager): User =
     User(
         name = name,
         nickname = nickname,
         rsaKeyPair = KeyPair(
-            KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(Base64.decode(rsaPublicKey))),
-            KeyFactory.getInstance("RSA").generatePrivate(PKCS8EncodedKeySpec(Base64.decode(rsaPrivateKey)))
+            cryptoManager.decodePublicKeyFromBase64(rsaPublicKey, "RSA"),
+            cryptoManager.getPrivateKey(cryptoManager.rsaAlias)
         ),
         ecKeyPair = KeyPair(
-            KeyFactory.getInstance("EC").generatePublic(X509EncodedKeySpec(Base64.decode(ecPublicKey))),
-            KeyFactory.getInstance("EC").generatePrivate(PKCS8EncodedKeySpec(Base64.decode(ecPrivateKey)))
+            cryptoManager.decodePublicKeyFromBase64(ecPublicKey, "EC"),
+            cryptoManager.getPrivateKey(cryptoManager.ecAlias)
         ),
         paymentCard = PaymentCard(enumValues<PaymentCardType>().firstOrNull { it.name == paymentCardType} ?: PaymentCardType.DEBIT, paymentCardNumber, paymentCardExpirationDate),
         uuid = uuid,
-        supermarketRsaPublicKey = supermarketRsaPublicKey
+        supermarketRsaPublicKey = cryptoManager.decodePublicKeyFromBase64(supermarketRsaPublicKey, "RSA")
     )
 
 fun PaymentCard.toPaymentCardDto(): PaymentCardDto =

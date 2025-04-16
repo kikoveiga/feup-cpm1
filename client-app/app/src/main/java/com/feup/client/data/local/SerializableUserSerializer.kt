@@ -11,7 +11,7 @@ import java.io.OutputStream
 object SerializableUserSerializer : Serializer<SerializableUser> {
 
     override val defaultValue: SerializableUser
-        get() = SerializableUser("", "", "", "", "", "", "", "", "", "", "")
+        get() = SerializableUser("", "", "", "", "", "", "", "", "")
 
     override suspend fun readFrom(input: InputStream): SerializableUser {
         return try {

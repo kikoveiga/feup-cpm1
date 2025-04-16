@@ -21,9 +21,9 @@ class RegisterUserUseCase @Inject constructor(
             val user = User(
                 name = name,
                 nickname = nickname,
-                paymentCard = paymentCard,
                 rsaKeyPair = cryptoManager.generateRSAKeyPair(),
-                ecKeyPair = cryptoManager.generateECKeyPair()
+                ecKeyPair = cryptoManager.generateECKeyPair(),
+                paymentCard = paymentCard
             )
 
             val result = userRepository.registerUser(user)
@@ -32,14 +32,14 @@ class RegisterUserUseCase @Inject constructor(
                 val registeredUser = result.getOrThrow()
 
                 if (registeredUser.uuid == null) {
-                    Result.failure(Exception("UUID is null in registered user"))
-                } else {
-                    userPreferences.saveUser(registeredUser)
-                    Result.success(Unit)
+                    return Result.failure(Exception("UUID is null in registered user"))
                 }
+
+                userPreferences.saveUser(registeredUser)
+                return Result.success(Unit)
             }
 
-            Result.failure(result.exceptionOrNull() ?: Exception("Failed to register user"))
+            return Result.failure(result.exceptionOrNull() ?: Exception("Failed to register user"))
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -1,6 +1,6 @@
 package com.acme.supermarket.server.dto
 
-data class UserResponse(
+data class UserResponseDto(
     val userUuid: String,
     val supermarketRsaPublicKey: String
 )

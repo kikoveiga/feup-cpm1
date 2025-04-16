@@ -6,10 +6,6 @@ import jakarta.persistence.*
 @Table(name = "vouchers")
 data class Voucher(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
-
-    @Column(nullable = false, unique = true)
     val uuid: String,
 
     @ManyToOne
@@ -17,5 +13,5 @@ data class Voucher(
     val user: User,
 
     @Column(nullable = false)
-    val used: Boolean = false
+    var used: Boolean = false
 )

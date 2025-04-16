@@ -2,10 +2,12 @@ package com.acme.supermarket.server.service
 
 import com.acme.supermarket.server.domain.User
 import com.acme.supermarket.server.dto.RegisterUserRequestDto
-import com.acme.supermarket.server.dto.UserResponse
+import com.acme.supermarket.server.dto.UserResponseDto
 import com.acme.supermarket.server.repository.UserRepository
+import jakarta.transaction.Transactional
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.util.*
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -16,7 +18,13 @@ class UserService (
 ) {
     private val supermarketRsaPublicKey: String = loadRsaPublicKey()
 
-    fun registerUser(request: RegisterUserRequestDto): UserResponse {
+    @Transactional
+    fun updateUserHistory(userId: String, totalValue: BigDecimal, accumulatedDiscount: BigDecimal) {
+        userRepository.updateTotalSpent(userId, totalValue)
+        userRepository.updateAccumulatedDiscount(userId, accumulatedDiscount)
+    }
+
+    fun registerUser(request: RegisterUserRequestDto): UserResponseDto {
         val userUuid = UUID.randomUUID().toString()
         if (request.name.isBlank()) throw BadRequestException("The name cannot be empty.")
         val user = User(
@@ -32,7 +40,7 @@ class UserService (
 
         userRepository.save(user)
 
-        return UserResponse(
+        return UserResponseDto(
             userUuid = userUuid,
             supermarketRsaPublicKey = supermarketRsaPublicKey
         )

@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SerializableUser (
-    val uuid: String,
     val name: String,
     val nickname: String,
     val rsaPublicKey: String,
@@ -13,5 +12,7 @@ data class SerializableUser (
     val ecPrivateKey: String,
     val paymentCardType: String,
     val paymentCardNumber: String,
-    val paymentCardExpirationDate: String
+    val paymentCardExpirationDate: String,
+    val uuid: String,
+    val supermarketRsaPublicKey: String
 )

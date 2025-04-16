@@ -25,7 +25,6 @@ fun User.toRegisterUserRequestDto(): RegisterUserRequestDto =
 @OptIn(ExperimentalEncodingApi::class)
 fun User.toSerializable(): SerializableUser =
     SerializableUser(
-        uuid = uuid!!,
         name = name,
         nickname = nickname,
         rsaPublicKey = Base64.encode(rsaKeyPair.public.encoded),
@@ -34,13 +33,14 @@ fun User.toSerializable(): SerializableUser =
         ecPrivateKey = Base64.encode(ecKeyPair.private.encoded),
         paymentCardType = paymentCard.type.toString(),
         paymentCardNumber = paymentCard.number,
-        paymentCardExpirationDate = paymentCard.expirationDate
+        paymentCardExpirationDate = paymentCard.expirationDate,
+        uuid = uuid ?: "",
+        supermarketRsaPublicKey = supermarketRsaPublicKey ?: ""
     )
 
 @OptIn(ExperimentalEncodingApi::class)
 fun SerializableUser.toUser(): User =
     User(
-        uuid = uuid,
         name = name,
         nickname = nickname,
         rsaKeyPair = KeyPair(
@@ -51,7 +51,9 @@ fun SerializableUser.toUser(): User =
             KeyFactory.getInstance("EC").generatePublic(X509EncodedKeySpec(Base64.decode(ecPublicKey))),
             KeyFactory.getInstance("EC").generatePrivate(PKCS8EncodedKeySpec(Base64.decode(ecPrivateKey)))
         ),
-        paymentCard = PaymentCard(enumValues<PaymentCardType>().firstOrNull { it.name == paymentCardType} ?: PaymentCardType.DEBIT, paymentCardNumber, paymentCardExpirationDate)
+        paymentCard = PaymentCard(enumValues<PaymentCardType>().firstOrNull { it.name == paymentCardType} ?: PaymentCardType.DEBIT, paymentCardNumber, paymentCardExpirationDate),
+        uuid = uuid,
+        supermarketRsaPublicKey = supermarketRsaPublicKey
     )
 
 fun PaymentCard.toPaymentCardDto(): PaymentCardDto =

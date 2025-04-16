@@ -20,4 +20,9 @@ interface UserRepository : JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.accumulatedDiscount = :accumulatedDiscount WHERE u.userUuid = :userId")
     fun updateAccumulatedDiscount(@Param("userId") userId: String, @Param("accumulatedDiscount") accumulatedDiscount: BigDecimal)
+
+    fun existsByUserUuid(userUuid: String): Boolean
+
+    fun existsByNickname(nickname: String): Boolean
+
 }

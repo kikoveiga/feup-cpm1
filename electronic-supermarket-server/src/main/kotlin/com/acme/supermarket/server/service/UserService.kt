@@ -28,7 +28,7 @@ class UserService (
     fun registerUser(request: RegisterUserRequestDto): UserResponseDto {
         val userUuid = UUID.randomUUID().toString()
 
-        validateRequest(request)
+        validateRequest(request,userUuid)
         val cleanedCardNumber = request.paymentCardDto.number.replace(Regex("[^\\d]"), "")
 
         val user = User(
@@ -45,7 +45,7 @@ class UserService (
         userRepository.save(user)
 
         return UserResponseDto(
-            userUuid = userUuid,
+            uuid  = userUuid,
             supermarketRsaPublicKey = supermarketRsaPublicKey
         )
     }
@@ -59,7 +59,7 @@ class UserService (
         return Files.readString(path)
     }
 
-    private fun validateRequest(request: RegisterUserRequestDto) {
+    private fun validateRequest(request: RegisterUserRequestDto, userUuid: String) {
 
         //If the requests are blank
         if (request.name.isBlank()) throw BadRequestException("The name cannot be empty.")
@@ -69,6 +69,8 @@ class UserService (
         if (request.paymentCardDto.type.isBlank()) throw BadRequestException("The type cannot be empty.")
         if (request.paymentCardDto.number.isBlank()) throw BadRequestException("Card number cannot be empty.")
         if (request.paymentCardDto.expirationDate.isBlank()) throw BadRequestException("Expiration date cannot be empty.")
+        if (userRepository.existsByUserUuid(userUuid)) throw BadRequestException("User already exists.")
+        if (userRepository.existsByNickname(request.nickname)) throw BadRequestException("Nickname already exists.")
 
         try {
             CardType.valueOf(request.paymentCardDto.type.uppercase())

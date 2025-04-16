@@ -1,4 +1,4 @@
-package com.feup.jtp.client_app.data.model.dto
+package com.acme.supermarket.server.dto
 
 data class RegisterUserRequestDto(
     val name: String,

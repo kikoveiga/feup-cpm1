@@ -22,7 +22,7 @@ open class User (
     val rsaPublicKey: String,
 
     @Column(nullable = false)
-    val ecdsaPublicKey: String,
+    val ecPublicKey: String,
 
     @Column(nullable = false)
     val cardType: String,

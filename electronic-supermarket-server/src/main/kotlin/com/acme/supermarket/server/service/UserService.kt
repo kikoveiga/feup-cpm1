@@ -1,7 +1,7 @@
 package com.acme.supermarket.server.service
 
 import com.acme.supermarket.server.domain.User
-import com.acme.supermarket.server.dto.RegistrationRequest
+import com.acme.supermarket.server.dto.RegisterUserRequestDto
 import com.acme.supermarket.server.dto.UserResponse
 import com.acme.supermarket.server.repository.UserRepository
 import org.apache.coyote.BadRequestException
@@ -16,7 +16,7 @@ class UserService (
 ) {
     private val supermarketRsaPublicKey: String = loadRsaPublicKey()
 
-    fun registerUser(request: RegistrationRequest): UserResponse {
+    fun registerUser(request: RegisterUserRequestDto): UserResponse {
         val userUuid = UUID.randomUUID().toString()
         if (request.name.isBlank()) throw BadRequestException("The name cannot be empty.")
         val user = User(
@@ -24,10 +24,10 @@ class UserService (
             name = request.name,
             nickname = request.nickname,
             rsaPublicKey = request.rsaPublicKey,
-            ecdsaPublicKey = request.ecdsaPublicKey,
-            cardType = request.cardType,
-            cardNumber = request.cardNumber,
-            cardExpirationDate = request.cardExpirationDate
+            ecPublicKey = request.ecPublicKey,
+            cardType = request.paymentCardDto.type,
+            cardNumber = request.paymentCardDto.number,
+            cardExpirationDate = request.paymentCardDto.expirationDate
         )
 
         userRepository.save(user)

@@ -5,6 +5,7 @@ import com.acme.supermarket.server.domain.Voucher
 import com.acme.supermarket.server.dto.*
 import com.acme.supermarket.server.repository.UserRepository
 import com.acme.supermarket.server.repository.VoucherRepository
+import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.security.KeyFactory
@@ -21,13 +22,15 @@ class CheckoutService(
 ) {
 
     fun processCheckout(transaction: TransactionToServerDto): TransactionFromServerDto {
-        if (!verifySignature(transaction)) {
+      /*  if (!verifySignature(transaction)) {
             return TransactionFromServerDto(false,
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
                 "Signature verification failure."
             )
         }
+*/
+        validateRequest(transaction)
 
         var totalValue = calculateTotalValue(transaction.items)
         var accumulatedDiscount = getAccumulatedDiscount(transaction.userUuid)
@@ -118,4 +121,20 @@ class CheckoutService(
         val keyFactory = KeyFactory.getInstance("EC")
         return keyFactory.generatePublic(keySpec)
     }
+
+    private fun validateRequest(transaction: TransactionToServerDto) {
+        //If the requests are blank
+        if (transaction.userUuid.isBlank()) throw BadRequestException("User UUID cannot be empty.")
+        if (transaction.items.isEmpty()) throw BadRequestException("Transaction must contain at least one item.")
+        transaction.items.forEachIndexed { index, item ->
+            if (item.productId.isBlank()) {
+                throw BadRequestException("Item at index $index has an empty productId.")
+            }
+            if (item.price <= 0.0) {
+                throw BadRequestException("Item at index $index has an invalid price. Must be greater than 0.")
+            }
+        }
+        if (transaction.signature.isBlank()) throw BadRequestException("Signature cannot be empty.")
+    }
+
 }

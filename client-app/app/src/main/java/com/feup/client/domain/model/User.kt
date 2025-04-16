@@ -8,5 +8,6 @@ data class User(
     val nickname: String,
     val rsaKeyPair: KeyPair,
     val ecKeyPair: KeyPair,
-    val paymentCard: PaymentCard
+    val paymentCard: PaymentCard,
+    val supermarketRsaPublicKey: String? = null,
 )

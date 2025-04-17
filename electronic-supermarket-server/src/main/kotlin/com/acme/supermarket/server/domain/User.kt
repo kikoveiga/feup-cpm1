@@ -41,5 +41,8 @@ open class User (
     var totalSpent: BigDecimal = BigDecimal.ZERO,
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val vouchers: List<Voucher> = emptyList()
+    val vouchers: List<Voucher> = emptyList(),
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    val transactions: List<Transaction> = emptyList()
 )

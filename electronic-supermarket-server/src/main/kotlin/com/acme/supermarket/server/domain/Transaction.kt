@@ -1,28 +1,30 @@
 package com.acme.supermarket.server.domain
 
 import jakarta.persistence.*
+import java.math.BigDecimal
 import java.time.LocalDateTime
+import java.util.*
 
 @Entity
 @Table(name = "transactions")
-open class Transaction(
+data class Transaction(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val uuid: String = UUID.randomUUID().toString(),
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
 
     @Column(nullable = false)
-    val amountPaid: Double,
+    val totalValue: BigDecimal,
 
     @Column(nullable = false)
-    val transactionDate: LocalDateTime = LocalDateTime.now(),
+    val accumulatedDiscountUsed: BigDecimal = BigDecimal.ZERO,
 
     @Column(nullable = false)
-    val voucherUsed: Boolean = false,
+    val voucherDiscountGenerated: BigDecimal = BigDecimal.ZERO,
 
     @Column(nullable = false)
-    val accumulatedDiscount: Double = 0.0
+    val timestamp: LocalDateTime = LocalDateTime.now()
 )
+

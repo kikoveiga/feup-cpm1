@@ -1,8 +1,10 @@
 package com.acme.supermarket.server.service
 
+import com.acme.supermarket.server.domain.Transaction
 import java.math.RoundingMode
 import com.acme.supermarket.server.domain.Voucher
 import com.acme.supermarket.server.dto.*
+import com.acme.supermarket.server.repository.TransactionRepository
 import com.acme.supermarket.server.repository.UserRepository
 import com.acme.supermarket.server.repository.VoucherRepository
 import org.apache.coyote.BadRequestException
@@ -18,6 +20,7 @@ import java.util.*
 class CheckoutService(
     private val userRepository: UserRepository,
     private val voucherRepository: VoucherRepository,
+    private val transactionRepository: TransactionRepository,
     private val userService: UserService
 ) {
 
@@ -34,13 +37,16 @@ class CheckoutService(
 
         var totalValue = calculateTotalValue(transaction.items)
         var accumulatedDiscount = getAccumulatedDiscount(transaction.userUuid)
+        var accumulatedDiscountUsed = BigDecimal.ZERO
 
         if (transaction.useAccumulatedDiscount) {
             if (totalValue < accumulatedDiscount){
+                accumulatedDiscountUsed = totalValue
                 accumulatedDiscount = accumulatedDiscount.subtract(totalValue)
                 totalValue = BigDecimal.ZERO
             }
             else {
+                accumulatedDiscountUsed = accumulatedDiscount
                 totalValue = totalValue.subtract(accumulatedDiscount)
                 accumulatedDiscount = BigDecimal.ZERO
             }
@@ -71,7 +77,21 @@ class CheckoutService(
 
         userService.updateUserHistory(transaction.userUuid, newTotalSpent, accumulatedDiscount)
 
-        return TransactionFromServerDto(true, totalValue, accumulatedDiscount,"Success")
+        transactionRepository.save(
+            Transaction(
+                user = user!!,
+                totalValue = totalValue,
+                accumulatedDiscountUsed = if (transaction.useAccumulatedDiscount) accumulatedDiscountUsed else BigDecimal.ZERO,
+                voucherDiscountGenerated = voucherDiscount
+            )
+        )
+
+        return TransactionFromServerDto(
+            isSuccess = true,
+            totalPaid = totalValue.setScale(2, RoundingMode.HALF_UP),
+            totalAccDiscount = accumulatedDiscount.setScale(2, RoundingMode.HALF_UP),
+            message = "Success"
+        )
     }
 
     private fun verifySignature(transaction: TransactionToServerDto): Boolean {

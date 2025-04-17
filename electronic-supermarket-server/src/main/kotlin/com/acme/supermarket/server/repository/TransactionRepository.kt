@@ -1,0 +1,8 @@
+package com.acme.supermarket.server.repository
+
+import com.acme.supermarket.server.domain.Transaction
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface TransactionRepository : JpaRepository<Transaction, String> {
+    fun findByUserUserUuid(userUuid: String): List<Transaction>
+}

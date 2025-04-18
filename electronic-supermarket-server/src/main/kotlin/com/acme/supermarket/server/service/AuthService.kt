@@ -25,6 +25,9 @@ class AuthService(
 ) {
 
     fun generateAndStoreNonce(userUuid: String): String {
+
+       userRepository.findByUserUuid(userUuid) ?: throw BadRequestException("User not found")
+
         val nonceBytes = ByteArray(16)
         SecureRandom().nextBytes(nonceBytes)
         val nonceBase64 = Base64.getEncoder().encodeToString(nonceBytes)
@@ -35,10 +38,10 @@ class AuthService(
     }
 
     fun verifyAndFetchUserData(request: AuthVerificationRequestDto): AuthResponseDto {
-        val user = userRepository.findByUserUuid(request.userUuid)
+        val user = userRepository.findByUserUuid(request.uuid)
             ?: throw BadRequestException("User not found")
 
-        val storedNonce = nonceStore.getNonce(request.userUuid)
+        val storedNonce = nonceStore.getNonce(request.uuid)
             ?: throw BadRequestException("No nonce stored")
 
         val publicKey = getPublicKeyFromString(user.rsaPublicKey)

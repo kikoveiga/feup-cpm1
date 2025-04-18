@@ -1,6 +1,6 @@
 package com.acme.supermarket.server.dto
 
 data class AuthVerificationRequestDto(
-    val userUuid: String,
+    val uuid: String,
     val signedNonce: String // Base64 encoded
 )

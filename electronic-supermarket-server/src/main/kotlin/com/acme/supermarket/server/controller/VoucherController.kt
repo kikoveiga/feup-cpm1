@@ -17,7 +17,7 @@ class VoucherController(
 
     @PostMapping
     fun createVoucher(@RequestBody dto: CreateVoucherDto): ResponseEntity<Any> {
-        val user = userRepository.findByUserUuid(dto.userUuid)
+        val user = userRepository.findByUserUuid(dto.uuid)
             ?: return ResponseEntity.badRequest().body("User not found")
 
         val voucher = Voucher(
@@ -29,15 +29,5 @@ class VoucherController(
         return ResponseEntity.ok().body("Voucher created")
     }
 
-    /*
-    @GetMapping("/unused/{userUuid}")
-    fun getUnusedVouchers(@PathVariable userUuid: String): ResponseEntity<List<Voucher>> {
-        val user = userRepository.findByUserUuid(userUuid)
-            ?: return ResponseEntity.badRequest().body(emptyList())
-
-        val unusedVouchers = voucherRepository.findByUserAndUsed(user, false)
-        return ResponseEntity.ok(unusedVouchers)
-    }
-    */
 }
 

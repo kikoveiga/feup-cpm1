@@ -14,8 +14,8 @@ class AuthController(
 ) {
 
     @GetMapping("/nonce")
-    fun getNonce(@RequestParam userUuid: String): ResponseEntity<NonceResponseDto> {
-        val nonce = authService.generateAndStoreNonce(userUuid)
+    fun getNonce(@RequestParam uuid: String): ResponseEntity<NonceResponseDto> {
+        val nonce = authService.generateAndStoreNonce(uuid)
         return ResponseEntity.ok(NonceResponseDto(nonce))
     }
 

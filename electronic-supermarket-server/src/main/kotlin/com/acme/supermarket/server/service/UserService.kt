@@ -94,7 +94,9 @@ class UserService (
 
         val currentYear = Calendar.getInstance().get(Calendar.YEAR) % 100
         if (year < currentYear) return false
-        if (year == currentYear && month < Calendar.getInstance().get(Calendar.MONTH)) return false
+
+        if (year == currentYear && month < (Calendar.getInstance().get(Calendar.MONTH) + 1)) return false
+
 
         return true
     }

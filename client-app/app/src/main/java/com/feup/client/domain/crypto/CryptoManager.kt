@@ -9,12 +9,14 @@ interface CryptoManager {
     val rsaAlias: String
     val ecAlias: String
 
+    fun encodeToBase64(data: ByteArray): String
+    fun decodeFromBase64(encodedData: String): ByteArray
+    fun hashPassword(password: String): ByteArray
     fun generateRSAKeyPair(): KeyPair
     fun generateECKeyPair(): KeyPair
-    fun encodePublicKeyToBase64(key: PublicKey): String
-    fun encodePrivateKeyToBase64(key: PrivateKey): String
     fun decodePublicKeyFromBase64(encodedKey: String, algorithm: String): PublicKey
     fun decodePrivateKeyFromBase64(encodedKey: String, algorithm: String): PrivateKey
     fun getPrivateKey(alias: String): PrivateKey?
     fun parsePemPublicKey(pem: String, algorithm: String): PublicKey
+    fun decryptWithPublicKey(encryptedData: String, publicKey: PublicKey): ByteArray
 }

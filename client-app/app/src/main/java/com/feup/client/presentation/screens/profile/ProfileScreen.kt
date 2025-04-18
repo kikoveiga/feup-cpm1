@@ -1,4 +1,4 @@
-package com.feup.client.presentation.screens.home
+package com.feup.client.presentation.screens.profile
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -7,6 +7,6 @@ import androidx.navigation.NavController
 import com.feup.client.presentation.screens.register.RegisterViewModel
 
 @Composable
-fun HomeScreen(navController: NavController, viewModel: RegisterViewModel = hiltViewModel()) {
-    Text("home")
+fun ProfileScreen(navController: NavController, viewModel: RegisterViewModel = hiltViewModel()) {
+    Text("profile")
 }

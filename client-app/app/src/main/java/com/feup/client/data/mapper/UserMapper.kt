@@ -13,8 +13,8 @@ fun User.toRegisterUserRequestDto(cryptoManager: CryptoManager): RegisterUserReq
     RegisterUserRequestDto(
         name = name,
         nickname = nickname,
-        rsaPublicKey = cryptoManager.encodePublicKeyToBase64(rsaKeyPair.public),
-        ecPublicKey = cryptoManager.encodePublicKeyToBase64(ecKeyPair.public),
+        rsaPublicKey = cryptoManager.encodeToBase64(rsaKeyPair.public.encoded),
+        ecPublicKey = cryptoManager.encodeToBase64(ecKeyPair.public.encoded),
         paymentCardDto = paymentCard.toPaymentCardDto()
     )
 
@@ -22,19 +22,21 @@ fun User.toSerializable(cryptoManager: CryptoManager): SerializableUser =
     SerializableUser(
         name = name,
         nickname = nickname,
-        rsaPublicKey = cryptoManager.encodePublicKeyToBase64(rsaKeyPair.public),
-        ecPublicKey = cryptoManager.encodePublicKeyToBase64(ecKeyPair.public),
+        passwordHash = cryptoManager.encodeToBase64(passwordHash),
+        rsaPublicKey = cryptoManager.encodeToBase64(rsaKeyPair.public.encoded),
+        ecPublicKey = cryptoManager.encodeToBase64(ecKeyPair.public.encoded),
         paymentCardType = paymentCard.type.toString(),
         paymentCardNumber = paymentCard.number,
         paymentCardExpirationDate = paymentCard.expirationDate,
         uuid = uuid ?: "",
-        supermarketRsaPublicKey = supermarketRsaPublicKey?.let { cryptoManager.encodePublicKeyToBase64(it) } ?: ""
+        supermarketRsaPublicKey = supermarketRsaPublicKey?.let { cryptoManager.encodeToBase64(it.encoded) } ?: ""
     )
 
 fun SerializableUser.toUser(cryptoManager: CryptoManager): User =
     User(
         name = name,
         nickname = nickname,
+        passwordHash = cryptoManager.decodeFromBase64(passwordHash),
         rsaKeyPair = KeyPair(
             cryptoManager.decodePublicKeyFromBase64(rsaPublicKey, "RSA"),
             cryptoManager.getPrivateKey(cryptoManager.rsaAlias)

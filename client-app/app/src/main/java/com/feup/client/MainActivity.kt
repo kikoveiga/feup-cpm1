@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.feup.client.di.UserPreferencesEntryPoint
+import com.feup.client.di.UserDataStoreEntryPoint
 import com.feup.client.presentation.navigation.AppScaffold
 import com.feup.client.presentation.screens.register.RegisterScreen
 import com.feup.client.presentation.theme.ClientappTheme
@@ -33,15 +33,15 @@ class MainActivity : ComponentActivity() {
             ClientappTheme {
                 val context = LocalContext.current
                 var isRegistered by remember { mutableStateOf<Boolean?>(null) }
-                val userPreferences = remember {
+                val userDataStore = remember {
                     EntryPointAccessors.fromApplication(
                         context.applicationContext,
-                        UserPreferencesEntryPoint::class.java
-                    ).userPreferences()
+                        UserDataStoreEntryPoint::class.java
+                    ).userDataStore()
                 }
 
                 LaunchedEffect(true) {
-                    isRegistered = userPreferences.isRegistered()
+                    isRegistered = userDataStore.isRegistered()
                 }
 
                 when (isRegistered) {

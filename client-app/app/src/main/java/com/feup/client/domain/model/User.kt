@@ -6,6 +6,7 @@ import java.security.PublicKey
 data class User(
     val name: String,
     val nickname: String,
+    val passwordHash: ByteArray,
     val rsaKeyPair: KeyPair,
     val ecKeyPair: KeyPair,
     val paymentCard: PaymentCard,

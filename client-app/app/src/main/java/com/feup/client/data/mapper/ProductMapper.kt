@@ -5,7 +5,7 @@ import com.feup.client.domain.model.Product
 
 fun ProductDto.toDomain(): Product =
     Product(
-        id = id,
+        uuid = id,
         name = name,
         price = price
     )

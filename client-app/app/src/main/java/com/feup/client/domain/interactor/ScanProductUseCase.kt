@@ -1,36 +1,36 @@
 package com.feup.client.domain.interactor
 
+import com.feup.client.domain.crypto.CryptoManager
+import com.feup.client.domain.local.UserDataStore
 import com.feup.client.domain.model.Product
-import com.feup.client.util.RSAUtils
 import java.nio.ByteBuffer
-import java.security.PublicKey
 import java.util.UUID
+import javax.inject.Inject
 
-class ScanProductUseCase(
-    private val rsaPublicKey: PublicKey
+class ScanProductUseCase @Inject constructor(
+    private val userDataStore: UserDataStore,
+    private val cryptoManager: CryptoManager
 ) {
-    fun execute(encryptedData: ByteArray): Product? {
-        try {
-            val decryptedBytes = RSAUtils.decrypt(encryptedData, rsaPublicKey)
+    suspend fun invoke(encryptedData: String): Product {
 
-            val buffer = ByteBuffer.wrap(decryptedBytes)
+        val supermarketRsaPublicKey = userDataStore.getSupermarketRsaPublicKey()
+        val decryptedData = cryptoManager.decryptWithPublicKey(encryptedData, supermarketRsaPublicKey)
+        val buffer = ByteBuffer.wrap(decryptedData)
 
-            val uuidBytes = ByteArray(16)
-            buffer.get(uuidBytes)
-            val uuid = UUID.nameUUIDFromBytes((uuidBytes))
+        val uuidBytes = ByteArray(16) // UUID is 16 bytes
+        buffer.get(uuidBytes)
+        val uuid = UUID.nameUUIDFromBytes(uuidBytes).toString()
 
-            val euros = buffer.get().toInt()
-            val cents = buffer.get().toInt()
-            val price = euros + cents / 100.0
+        val price = buffer.float
 
-            val nameBytes = ByteArray(buffer.remaining())
-            buffer.get(nameBytes)
-            val name = String(nameBytes, Charsets.UTF_8)
+        val nameBytes = ByteArray(buffer.remaining())
+        buffer.get(nameBytes)
+        val name = String(nameBytes, Charsets.UTF_8)
 
-            return Product(uuid.toString(), name, price)
-        } catch (e:Exception) {
-            e.printStackTrace()
-            return null
-        }
+        return Product(
+            uuid = uuid,
+            name = name,
+            price = price.toDouble()
+        )
     }
 }

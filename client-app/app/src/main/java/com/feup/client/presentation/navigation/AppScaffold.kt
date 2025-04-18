@@ -13,7 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.feup.client.presentation.screens.home.HomeScreen
+import com.feup.client.presentation.screens.profile.ProfileScreen
+import com.feup.client.presentation.screens.shopping.ShoppingScreen
 import com.feup.client.presentation.screens.transactions.TransactionsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,9 +35,10 @@ fun AppScaffold() {
         bottomBar = { BottomNavBar(navController) }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            NavHost(navController = navController, startDestination = BottomNavScreen.Home.route) {
-                composable(BottomNavScreen.Home.route) { HomeScreen(navController) }
-                composable(BottomNavScreen.Shopping.route) { TransactionsScreen(navController) }
+            NavHost(navController = navController, startDestination = BottomNavScreen.Shopping.route) {
+                composable(BottomNavScreen.Shopping.route) { ShoppingScreen(navController) }
+                composable(BottomNavScreen.Transactions.route) { TransactionsScreen(navController) }
+                composable(BottomNavScreen.Profile.route) { ProfileScreen(navController) }
             }
         }
     }

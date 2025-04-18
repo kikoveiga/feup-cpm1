@@ -1,5 +1,6 @@
 package com.feup.client.presentation.screens.register
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -9,13 +10,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -25,8 +30,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.feup.client.R
+import com.feup.client.domain.model.PaymentCardType
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -34,6 +44,7 @@ import java.util.Locale
 @Composable
 fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hiltViewModel()) {
     val state = viewModel.uiState.collectAsState()
+    var passwordVisible by remember { mutableStateOf(false) }
 
     if (state.value.error != null) {
         AlertDialog(
@@ -55,25 +66,65 @@ fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hilt
         OutlinedTextField(
             value = state.value.name,
             onValueChange = viewModel::onNameChanged,
+            modifier = Modifier.fillMaxWidth(),
             label = { Text("Name") },
             isError = state.value.showValidationErrors && state.value.name.isBlank(),
-            modifier = Modifier.fillMaxWidth()
+            singleLine = true,
         )
 
         OutlinedTextField(
             value = state.value.nickname,
-            onValueChange = viewModel::onNicknameChanged,
+            onValueChange = { input ->
+                if (!input.contains(" ")) {
+                    viewModel.onNicknameChanged(input)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
             label = { Text("Nickname") },
             isError = state.value.showValidationErrors && state.value.nickname.isBlank(),
-            modifier = Modifier.fillMaxWidth()
+            singleLine = true,
         )
 
         OutlinedTextField(
+            value = state.value.password,
+            onValueChange = { input ->
+                if (!input.contains(" ")) {
+                    viewModel.onPasswordChanged(input)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Password") },
+            trailingIcon = {
+                if (state.value.password.isNotBlank()) {
+                    val visibilityIcon = painterResource(id = R.drawable.baseline_visibility_24)
+                    val visibilityOffIcon =
+                        painterResource(id = R.drawable.baseline_visibility_off_24)
+
+                    Icon(
+                        painter = if (passwordVisible) visibilityOffIcon else visibilityIcon,
+                        contentDescription = "Toggle password visibility",
+                        modifier = Modifier.clickable { passwordVisible = !passwordVisible }
+                    )
+                }
+            },
+            isError = state.value.showValidationErrors && state.value.nickname.isBlank(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            singleLine = true,
+        )
+
+        PaymentCardTypeDropdown(state.value.paymentCardType, viewModel::onPaymentCardTypeChanged)
+
+        OutlinedTextField(
             value = state.value.paymentCardNumber,
-            onValueChange = viewModel::onPaymentCardNumberChanged,
+            onValueChange = { input ->
+                if (!input.contains(" ")) {
+                    viewModel.onPaymentCardNumberChanged(input)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
             label = { Text("Card Number") },
             isError = state.value.showValidationErrors && state.value.paymentCardNumber.length < 8,
-            modifier = Modifier.fillMaxWidth()
+            singleLine = true,
         )
 
         DatePickerFieldToModal(
@@ -124,6 +175,45 @@ fun DatePickerFieldToModal(selectedDateFormatted: String, onDateSelectedFormatte
             },
             onDismiss = { showModal = false }
         )
+    }
+}
+
+@Composable
+fun PaymentCardTypeDropdown(
+    selectedPaymentCardType: PaymentCardType?,
+    onPaymentCardTypeSelected: (PaymentCardType) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = selectedPaymentCardType.toString(),
+        onValueChange = {},
+        modifier = Modifier.fillMaxWidth(),
+        readOnly = true,
+        label = { Text("Card Type") },
+        trailingIcon = {
+            IconButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown"
+                )
+            }
+        },
+    )
+
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false }
+    ) {
+        PaymentCardType.entries.forEach { paymentCardType ->
+            DropdownMenuItem(
+                text = { Text(paymentCardType.toString()) },
+                onClick = {
+                    onPaymentCardTypeSelected(paymentCardType)
+                    expanded = false
+                }
+            )
+        }
     }
 }
 

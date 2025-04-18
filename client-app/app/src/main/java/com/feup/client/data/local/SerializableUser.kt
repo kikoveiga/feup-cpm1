@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class SerializableUser (
     val name: String,
     val nickname: String,
+    val passwordHash: String,
     val rsaPublicKey: String,
     val ecPublicKey: String,
     val paymentCardType: String,

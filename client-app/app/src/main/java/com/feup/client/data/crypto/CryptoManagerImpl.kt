@@ -12,15 +12,33 @@ import java.security.PublicKey
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
 import javax.inject.Inject
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 class CryptoManagerImpl @Inject constructor() : CryptoManager {
 
-        override val androidKeyStore = "AndroidKeyStore"
-        override val rsaAlias = "rsa_key"
-        override val ecAlias = "ec_key"
+    override val androidKeyStore = "AndroidKeyStore"
+    override val rsaAlias = "rsa_key"
+    override val ecAlias = "ec_key"
+
+    @OptIn(ExperimentalEncodingApi::class)
+    override fun encodeToBase64(data: ByteArray): String {
+        return Base64.Default.encode(data)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    override fun decodeFromBase64(encodedData: String): ByteArray {
+        return Base64.Default.decode(encodedData)
+    }
+
+    override fun hashPassword(password: String): ByteArray {
+        val spec = PBEKeySpec(password.toCharArray(), "staticSalt".toByteArray(), 65536, 256)
+        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+        return factory.generateSecret(spec).encoded
+    }
 
     override fun generateRSAKeyPair(): KeyPair {
         val keyPairGenerator = KeyPairGenerator.getInstance(
@@ -57,27 +75,13 @@ class CryptoManagerImpl @Inject constructor() : CryptoManager {
         return keyPairGenerator.generateKeyPair()
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
-    override fun encodePublicKeyToBase64(key: PublicKey): String {
-        println("Encoded public key: ${Base64.Default.encode(key.encoded)}")
-        return Base64.Default.encode(key.encoded)
-    }
-
-    @OptIn(ExperimentalEncodingApi::class)
-    override fun encodePrivateKeyToBase64(key: PrivateKey): String {
-        println("Encoded private key: ${Base64.Default.encode(key.encoded)}")
-        return Base64.Default.encode(key.encoded)
-    }
-
-    @OptIn(ExperimentalEncodingApi::class)
     override fun decodePublicKeyFromBase64(encodedKey: String, algorithm: String): PublicKey {
-        val bytes = Base64.Default.decode(encodedKey)
+        val bytes = decodeFromBase64(encodedKey)
         return KeyFactory.getInstance(algorithm).generatePublic(X509EncodedKeySpec(bytes))
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
     override fun decodePrivateKeyFromBase64(encodedKey: String, algorithm: String): PrivateKey {
-        val bytes = Base64.Default.decode(encodedKey)
+        val bytes = decodeFromBase64(encodedKey)
         return KeyFactory.getInstance(algorithm).generatePrivate(PKCS8EncodedKeySpec(bytes))
     }
 
@@ -93,5 +97,9 @@ class CryptoManagerImpl @Inject constructor() : CryptoManager {
             .replace("\\s".toRegex(), "")
         println("Cleaned public key: $cleaned")
         return decodePublicKeyFromBase64(cleaned, algorithm)
+    }
+
+    override fun decryptWithPublicKey(encryptedData: String, publicKey: PublicKey): ByteArray {
+        TODO("Not yet implemented")
     }
 }

@@ -1,7 +1,7 @@
 package com.feup.client.domain.interactor.auth
 
 import com.feup.client.domain.crypto.CryptoManager
-import com.feup.client.domain.local.UserPreferences
+import com.feup.client.domain.local.UserDataStore
 import com.feup.client.domain.model.PaymentCard
 import com.feup.client.domain.model.User
 import com.feup.client.domain.repository.UserRepository
@@ -10,17 +10,19 @@ import javax.inject.Inject
 class RegisterUserUseCase @Inject constructor(
     private val userRepository: UserRepository,
     private val cryptoManager: CryptoManager,
-    private val userPreferences: UserPreferences
+    private val userDataStore: UserDataStore
 ) {
     suspend operator fun invoke(
         name: String,
         nickname: String,
+        password: String,
         paymentCard: PaymentCard
     ): Result<Unit> {
         return try {
             val user = User(
                 name = name,
                 nickname = nickname,
+                passwordHash = cryptoManager.hashPassword(password),
                 rsaKeyPair = cryptoManager.generateRSAKeyPair(),
                 ecKeyPair = cryptoManager.generateECKeyPair(),
                 paymentCard = paymentCard
@@ -35,7 +37,7 @@ class RegisterUserUseCase @Inject constructor(
                     return Result.failure(Exception("UUID is null in registered user"))
                 }
 
-                userPreferences.saveUser(registeredUser)
+                userDataStore.saveUser(registeredUser)
                 return Result.success(Unit)
             }
 

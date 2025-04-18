@@ -28,6 +28,10 @@ class RegisterViewModel @Inject constructor(
         _uiState.update { it.copy(nickname = nickname) }
     }
 
+    fun onPasswordChanged(password: String) {
+        _uiState.update { it.copy(password = password) }
+    }
+
     fun onPaymentCardTypeChanged(paymentCardType: PaymentCardType) {
         _uiState.update { it.copy(paymentCardType = paymentCardType) }
     }
@@ -49,7 +53,12 @@ class RegisterViewModel @Inject constructor(
 
             _uiState.update { it.copy(showValidationErrors = true) }
             val result = _uiState.value.let {
-                registerUserUseCase.invoke(it.name, it.nickname, PaymentCard(it.paymentCardType, it.paymentCardNumber, it.paymentCardExpirationDate))
+                registerUserUseCase.invoke(
+                    name = it.name,
+                    nickname = it.nickname,
+                    password = it.password,
+                    paymentCard = PaymentCard(it.paymentCardType, it.paymentCardNumber, it.paymentCardExpirationDate)
+                )
             }
 
             if (result.isSuccess) {

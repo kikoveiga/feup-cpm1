@@ -1,5 +1,6 @@
 package com.feup.client.di
 
+import android.os.Build
 import com.feup.client.data.remote.SupermarketApi
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -29,15 +30,25 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8080/")
+    fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit {
+        val baseUrl =
+            if (isEmulator()) "http://10.0.2.2:8080/"
+            else "http://192.168.1.242:8080/" // Replace with your local IP address and add it to network_security_config.xml
+
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()
+    }
 
     @Provides
     @Singleton
     fun providesSupermarketApi(retrofit: Retrofit): SupermarketApi =
         retrofit.create(SupermarketApi::class.java)
+
+    // Placeholder function, can be replaced with actual implementation
+    private fun isEmulator(): Boolean = true
 }
+
+

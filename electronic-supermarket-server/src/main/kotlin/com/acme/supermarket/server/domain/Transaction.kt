@@ -1,5 +1,6 @@
 package com.acme.supermarket.server.domain
 
+import com.acme.supermarket.server.dto.TransactionDto
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -26,5 +27,17 @@ data class Transaction(
 
     @Column(nullable = false)
     val timestamp: LocalDateTime = LocalDateTime.now()
+
 )
+fun Transaction.toDto(): TransactionDto {
+    return TransactionDto(
+        uuid = this.uuid,
+        userUuid = this.user.userUuid,
+        totalValue = this.totalValue,
+        accumulatedDiscountUsed = this.accumulatedDiscountUsed,
+        voucherDiscountGenerated = this.voucherDiscountGenerated,
+        timestamp = this.timestamp
+    )
+}
+
 

@@ -1,5 +1,6 @@
 package com.acme.supermarket.server.domain
 
+import com.acme.supermarket.server.dto.VoucherDto
 import jakarta.persistence.*
 
 @Entity
@@ -15,3 +16,11 @@ data class Voucher(
     @Column(nullable = false)
     var used: Boolean = false
 )
+
+fun Voucher.toDto(): VoucherDto {
+    return VoucherDto(
+        uuid = this.uuid,
+        userUuid = this.user.userUuid,
+        used = this.used
+    )
+}

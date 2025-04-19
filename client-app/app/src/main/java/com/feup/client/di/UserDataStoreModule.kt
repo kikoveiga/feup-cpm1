@@ -1,6 +1,6 @@
 package com.feup.client.di
 
-import com.feup.client.data.local.UserDataStoreImpl
+import com.feup.client.data.local.datastore.UserDataStoreImpl
 import com.feup.client.domain.local.UserDataStore
 import dagger.Binds
 import dagger.Module

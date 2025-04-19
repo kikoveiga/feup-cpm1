@@ -1,4 +1,4 @@
-package com.feup.client.data.local
+package com.feup.client.data.local.datastore
 
 import kotlinx.serialization.Serializable
 

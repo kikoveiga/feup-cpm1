@@ -2,7 +2,7 @@ package com.feup.client.presentation.screens.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feup.client.domain.interactor.auth.RegisterUserUseCase
+import com.feup.client.domain.usecases.RegisterUserUseCase
 import com.feup.client.domain.model.PaymentCard
 import com.feup.client.domain.model.PaymentCardType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,8 +20,21 @@ class RegisterViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState
 
+    val isFormValid: Boolean
+        get() = _uiState.value.run {
+            name.isNotBlank()
+                    && nickname.isNotBlank()
+                    && password.isNotBlank()
+                    && paymentCardNumber.isNotBlank()
+                    && paymentCardExpirationDate.isNotBlank()
+        }
+
     fun onNameChanged(name: String) {
-        _uiState.update { it.copy(name = name) }
+        if (name.length > 30) {
+            _uiState.update { it.copy(nameError = "Name too long") }
+        } else {
+            _uiState.update { it.copy(name = name) }
+        }
     }
 
     fun onNicknameChanged(nickname: String) {
@@ -48,7 +61,7 @@ class RegisterViewModel @Inject constructor(
         _uiState.update { it.copy(error = null) }
     }
 
-    fun registerUser(onRegistered: () -> Unit = {}) {
+    fun registerUser() {
         viewModelScope.launch {
 
             _uiState.update { it.copy(showValidationErrors = true) }
@@ -62,7 +75,7 @@ class RegisterViewModel @Inject constructor(
             }
 
             if (result.isSuccess) {
-                onRegistered()
+                _uiState.update { RegisterUiState() }
             } else {
                 val error = result.exceptionOrNull()
                 _uiState.update { it.copy(error = error?.message) }

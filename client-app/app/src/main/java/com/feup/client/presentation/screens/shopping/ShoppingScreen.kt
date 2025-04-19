@@ -39,7 +39,7 @@ fun ShoppingScreen(navController: NavController, viewModel: ShoppingViewModel = 
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
-        Button(onClick = { launcher.launch(ScanOptions()) }) {
+        Button(onClick = { scope.launch { viewModel.handleQrScan("a") } }) {
             Text("Scan product")
         }
         Spacer(modifier = Modifier.height(16.dp))

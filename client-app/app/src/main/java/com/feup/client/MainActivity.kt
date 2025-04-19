@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,33 +31,27 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            ClientappTheme {
-                val context = LocalContext.current
-                var isRegistered by remember { mutableStateOf<Boolean?>(null) }
-                val userDataStore = remember {
-                    EntryPointAccessors.fromApplication(
-                        context.applicationContext,
-                        UserDataStoreEntryPoint::class.java
-                    ).userDataStore()
-                }
+                ClientappTheme {
+                    val context = LocalContext.current
+                    val userDataStore = remember {
+                        EntryPointAccessors.fromApplication(
+                            context.applicationContext,
+                            UserDataStoreEntryPoint::class.java
+                        ).userDataStore()
+                    }
 
-                LaunchedEffect(true) {
-                    isRegistered = userDataStore.isRegistered()
-                }
+                    val isAnyUserLoggedIn by userDataStore.isLoggedInFlow.collectAsState(initial = null)
 
-                when (isRegistered) {
-                    true -> AppScaffold()
-                    false -> RegisterScreen(onRegistered = {
-                        isRegistered = true
-                    })
-                    null -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
+                    when (isAnyUserLoggedIn) {
+                        true -> AppScaffold()
+                        false -> RegisterScreen()
+                        null -> {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
                 }
-
-            }
         }
     }
 }

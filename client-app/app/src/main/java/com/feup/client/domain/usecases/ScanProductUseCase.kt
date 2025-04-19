@@ -1,4 +1,4 @@
-package com.feup.client.domain.interactor
+package com.feup.client.domain.usecases
 
 import com.feup.client.domain.crypto.CryptoManager
 import com.feup.client.domain.local.UserDataStore
@@ -13,8 +13,16 @@ class ScanProductUseCase @Inject constructor(
 ) {
     suspend fun invoke(encryptedData: String): Product {
 
-        val supermarketRsaPublicKey = userDataStore.getSupermarketRsaPublicKey()
-        val decryptedData = cryptoManager.decryptWithPublicKey(encryptedData, supermarketRsaPublicKey)
+        // val supermarketRsaPublicKey = userDataStore.getSupermarketRsaPublicKey()
+        val supermarketRsaPublicKey = cryptoManager.parsePemPublicKey("""-----BEGIN PUBLIC KEY-----
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANtswixMkVTMuDjXbJygsi/A3AWUbk0v
+zZ/J6aHGo/zNnXY/Tc1tBA49oYwmO/h61El5U/n1boEZENR6SeNtKssCAwEAAQ==
+-----END PUBLIC KEY-----
+
+""", "RSA")
+
+        val eencryptedData = "rVjdUqQdvdyW5mgU4q/6ThUGHj2g0WDYpKmPLUIsOY3aA8iYbGXU2f716C2bLhaQ5b7XKsuIpUq0KSs9Ev5Kww=="
+        val decryptedData = cryptoManager.decryptWithPublicKey(eencryptedData, supermarketRsaPublicKey)
         val buffer = ByteBuffer.wrap(decryptedData)
 
         val uuidBytes = ByteArray(16) // UUID is 16 bytes
@@ -26,6 +34,10 @@ class ScanProductUseCase @Inject constructor(
         val nameBytes = ByteArray(buffer.remaining())
         buffer.get(nameBytes)
         val name = String(nameBytes, Charsets.UTF_8)
+
+        println("#UUID: $uuid")
+        println("#Name: $name")
+        println("#Price: $price")
 
         return Product(
             uuid = uuid,

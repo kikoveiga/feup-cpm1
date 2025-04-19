@@ -12,6 +12,7 @@ import java.security.PublicKey
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
+import javax.crypto.Cipher
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import javax.inject.Inject
@@ -95,11 +96,15 @@ class CryptoManagerImpl @Inject constructor() : CryptoManager {
             .replace("-----BEGIN PUBLIC KEY-----", "")
             .replace("-----END PUBLIC KEY-----", "")
             .replace("\\s".toRegex(), "")
-        println("Cleaned public key: $cleaned")
         return decodePublicKeyFromBase64(cleaned, algorithm)
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     override fun decryptWithPublicKey(encryptedData: String, publicKey: PublicKey): ByteArray {
-        TODO("Not yet implemented")
+        println("#Encrypted data: $encryptedData")
+        val cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding")
+        cipher.init(Cipher.DECRYPT_MODE, publicKey)
+        val encryptedBytes = Base64.decode(encryptedData)
+        return cipher.doFinal(encryptedBytes)
     }
 }

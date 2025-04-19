@@ -21,7 +21,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -42,7 +41,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hiltViewModel()) {
+fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()) {
     val state = viewModel.uiState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -60,15 +59,18 @@ fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hilt
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("Register User", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = state.value.name,
             onValueChange = viewModel::onNameChanged,
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Name") },
-            isError = state.value.showValidationErrors && state.value.name.isBlank(),
+            supportingText = {
+                state.value.nameError?.let {
+                    Text(it)
+                }
+            },
+            isError = state.value.nameError != null,
             singleLine = true,
         )
 
@@ -81,7 +83,6 @@ fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hilt
             },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Nickname") },
-            isError = state.value.showValidationErrors && state.value.nickname.isBlank(),
             singleLine = true,
         )
 
@@ -107,7 +108,6 @@ fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hilt
                     )
                 }
             },
-            isError = state.value.showValidationErrors && state.value.nickname.isBlank(),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             singleLine = true,
         )
@@ -123,7 +123,6 @@ fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hilt
             },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Card Number") },
-            isError = state.value.showValidationErrors && state.value.paymentCardNumber.length < 8,
             singleLine = true,
         )
 
@@ -135,7 +134,10 @@ fun RegisterScreen(onRegistered: () -> Unit, viewModel: RegisterViewModel = hilt
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { viewModel.registerUser(onRegistered = onRegistered) }) {
+        Button(
+            onClick = { viewModel.registerUser() },
+            enabled = viewModel.isFormValid
+        ) {
             Text("Register")
         }
     }

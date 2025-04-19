@@ -1,4 +1,4 @@
-package com.feup.client.domain.interactor.auth
+package com.feup.client.domain.usecases
 
 import com.feup.client.domain.crypto.CryptoManager
 import com.feup.client.domain.local.UserDataStore
@@ -19,6 +19,11 @@ class RegisterUserUseCase @Inject constructor(
         paymentCard: PaymentCard
     ): Result<Unit> {
         return try {
+
+            if (userDataStore.doesUserExist(nickname = nickname)) {
+                return Result.failure(Exception("User with this nickname already exists"))
+            }
+
             val user = User(
                 name = name,
                 nickname = nickname,

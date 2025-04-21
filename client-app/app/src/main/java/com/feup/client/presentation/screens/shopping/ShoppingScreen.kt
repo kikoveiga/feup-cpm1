@@ -33,13 +33,19 @@ fun ShoppingScreen(navController: NavController, viewModel: ShoppingViewModel = 
         }
     }
 
+    val scanOptions = ScanOptions().apply {
+        setOrientationLocked(false)
+        setPrompt("Scan a product QR code")
+        setBeepEnabled(false)
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
-        Button(onClick = { scope.launch { viewModel.handleQrScan("a") } }) {
+        Button(onClick = { launcher.launch(scanOptions) }) {
             Text("Scan product")
         }
         Spacer(modifier = Modifier.height(16.dp))

@@ -1,35 +1,22 @@
-package com.feup.client.presentation.screens.register
+package com.feup.client.presentation.screens.auth
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -41,9 +28,10 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()) {
+fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
     val state = viewModel.uiState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
+    var isLoginMode by remember { mutableStateOf(false) }
 
     if (state.value.error != null) {
         AlertDialog(
@@ -60,19 +48,21 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()) {
 
     Column(modifier = Modifier.padding(16.dp)) {
 
-        OutlinedTextField(
-            value = state.value.name,
-            onValueChange = viewModel::onNameChanged,
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Name") },
-            supportingText = {
-                state.value.nameError?.let {
-                    Text(it)
-                }
-            },
-            isError = state.value.nameError != null,
-            singleLine = true,
-        )
+        if (!isLoginMode) {
+            OutlinedTextField(
+                value = state.value.name,
+                onValueChange = viewModel::onNameChanged,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Name") },
+                supportingText = {
+                    state.value.nameError?.let {
+                        Text(it)
+                    }
+                },
+                isError = state.value.nameError != null,
+                singleLine = true,
+            )
+        }
 
         OutlinedTextField(
             value = state.value.nickname,
@@ -98,8 +88,7 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()) {
             trailingIcon = {
                 if (state.value.password.isNotBlank()) {
                     val visibilityIcon = painterResource(id = R.drawable.baseline_visibility_24)
-                    val visibilityOffIcon =
-                        painterResource(id = R.drawable.baseline_visibility_off_24)
+                    val visibilityOffIcon = painterResource(id = R.drawable.baseline_visibility_off_24)
 
                     Icon(
                         painter = if (passwordVisible) visibilityOffIcon else visibilityIcon,
@@ -112,33 +101,44 @@ fun RegisterScreen(viewModel: RegisterViewModel = hiltViewModel()) {
             singleLine = true,
         )
 
-        PaymentCardTypeDropdown(state.value.paymentCardType, viewModel::onPaymentCardTypeChanged)
+        if (!isLoginMode) {
+            PaymentCardTypeDropdown(state.value.paymentCardType, viewModel::onPaymentCardTypeChanged)
 
-        OutlinedTextField(
-            value = state.value.paymentCardNumber,
-            onValueChange = { input ->
-                if (!input.contains(" ")) {
-                    viewModel.onPaymentCardNumberChanged(input)
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Card Number") },
-            singleLine = true,
-        )
+            OutlinedTextField(
+                value = state.value.paymentCardNumber,
+                onValueChange = { input ->
+                    if (input.all { it.isDigit() } && input.length <= 16) {
+                        viewModel.onPaymentCardNumberChanged(input)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Card Number") },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
+                singleLine = true,
+            )
 
-        DatePickerFieldToModal(
-            selectedDateFormatted = state.value.paymentCardExpirationDate,
-            onDateSelectedFormatted = viewModel::onPaymentCardExpirationDateChanged
-        )
-
+            DatePickerFieldToModal(
+                selectedDateFormatted = state.value.paymentCardExpirationDate,
+                onDateSelectedFormatted = viewModel::onPaymentCardExpirationDateChanged
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.registerUser() },
-            enabled = viewModel.isFormValid
+            onClick = {
+                if (isLoginMode) viewModel.loginUser()
+                else viewModel.registerUser()
+            },
         ) {
-            Text("Register")
+            Text(if (isLoginMode) "Login" else "Register")
+        }
+
+        TextButton(onClick = { isLoginMode = !isLoginMode }) {
+            Text(if (isLoginMode) "Don't have an account? Register" else "Already have an account? Login")
         }
     }
 }
@@ -243,9 +243,7 @@ fun DatePickerModal(
             }
         }
     ) {
-        DatePicker(
-            state = datePickerState
-        )
+        DatePicker(state = datePickerState)
     }
 }
 

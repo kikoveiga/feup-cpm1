@@ -1,10 +1,8 @@
 package com.feup.client.presentation.screens.profile
 
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feup.client.domain.local.UserDataStore
-import com.feup.client.domain.usecases.RegisterUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

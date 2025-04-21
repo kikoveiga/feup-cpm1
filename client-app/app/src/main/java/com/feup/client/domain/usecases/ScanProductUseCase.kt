@@ -13,17 +13,10 @@ class ScanProductUseCase @Inject constructor(
 ) {
     suspend fun invoke(encryptedData: String): Product {
 
-        // val supermarketRsaPublicKey = userDataStore.getSupermarketRsaPublicKey()
-        val supermarketRsaPublicKey = cryptoManager.parsePemPublicKey("""-----BEGIN PUBLIC KEY-----
-MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANtswixMkVTMuDjXbJygsi/A3AWUbk0v
-zZ/J6aHGo/zNnXY/Tc1tBA49oYwmO/h61El5U/n1boEZENR6SeNtKssCAwEAAQ==
------END PUBLIC KEY-----
+        val supermarketRsaPublicKey = userDataStore.getSupermarketRsaPublicKey()
 
-""", "RSA")
-
-        val eencryptedData = "rVjdUqQdvdyW5mgU4q/6ThUGHj2g0WDYpKmPLUIsOY3aA8iYbGXU2f716C2bLhaQ5b7XKsuIpUq0KSs9Ev5Kww=="
-        val decryptedData = cryptoManager.decryptWithPublicKey(eencryptedData, supermarketRsaPublicKey)
-        val buffer = ByteBuffer.wrap(decryptedData)
+        println(cryptoManager.decodeFromBase64(encryptedData))
+        val buffer = ByteBuffer.wrap(cryptoManager.decodeFromBase64(encryptedData))
 
         val uuidBytes = ByteArray(16) // UUID is 16 bytes
         buffer.get(uuidBytes)

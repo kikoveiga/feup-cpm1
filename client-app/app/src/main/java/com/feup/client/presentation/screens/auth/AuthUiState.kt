@@ -1,8 +1,8 @@
-package com.feup.client.presentation.screens.register
+package com.feup.client.presentation.screens.auth
 
 import com.feup.client.domain.model.PaymentCardType
 
-data class RegisterUiState(
+data class AuthUiState(
     val name: String = "",
     val nameError: String? = null,
 

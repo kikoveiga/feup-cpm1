@@ -101,7 +101,6 @@ class   CryptoManagerImpl @Inject constructor() : CryptoManager {
 
     @OptIn(ExperimentalEncodingApi::class)
     override fun decryptWithPublicKey(encryptedData: String, publicKey: PublicKey): ByteArray {
-        println("#Encrypted data: $encryptedData")
         val cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding")
         cipher.init(Cipher.DECRYPT_MODE, publicKey)
         val encryptedBytes = Base64.decode(encryptedData)

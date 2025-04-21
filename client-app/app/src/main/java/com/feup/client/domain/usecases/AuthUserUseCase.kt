@@ -7,12 +7,12 @@ import com.feup.client.domain.model.User
 import com.feup.client.domain.repository.UserRepository
 import javax.inject.Inject
 
-class RegisterUserUseCase @Inject constructor(
+class AuthUserUseCase @Inject constructor(
     private val userRepository: UserRepository,
     private val cryptoManager: CryptoManager,
     private val userDataStore: UserDataStore
 ) {
-    suspend operator fun invoke(
+    suspend fun register(
         name: String,
         nickname: String,
         password: String,
@@ -50,5 +50,12 @@ class RegisterUserUseCase @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    suspend fun login(
+        nickname: String,
+        password: String
+    ): Result<Unit> {
+        return userDataStore.loginUser(nickname = nickname, password = password)
     }
 }

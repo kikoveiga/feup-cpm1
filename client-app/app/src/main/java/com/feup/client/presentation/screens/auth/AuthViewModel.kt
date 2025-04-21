@@ -1,8 +1,8 @@
-package com.feup.client.presentation.screens.register
+package com.feup.client.presentation.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feup.client.domain.usecases.RegisterUserUseCase
+import com.feup.client.domain.usecases.AuthUserUseCase
 import com.feup.client.domain.model.PaymentCard
 import com.feup.client.domain.model.PaymentCardType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,12 +13,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RegisterViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase,
+class AuthViewModel @Inject constructor(
+    private val authUserUseCase: AuthUserUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(RegisterUiState())
-    val uiState: StateFlow<RegisterUiState> = _uiState
+    private val _uiState = MutableStateFlow(AuthUiState())
+    val uiState: StateFlow<AuthUiState> = _uiState
 
     val isFormValid: Boolean
         get() = _uiState.value.run {
@@ -66,7 +66,7 @@ class RegisterViewModel @Inject constructor(
 
             _uiState.update { it.copy(showValidationErrors = true) }
             val result = _uiState.value.let {
-                registerUserUseCase.invoke(
+                authUserUseCase.register(
                     name = it.name,
                     nickname = it.nickname,
                     password = it.password,
@@ -75,7 +75,26 @@ class RegisterViewModel @Inject constructor(
             }
 
             if (result.isSuccess) {
-                _uiState.update { RegisterUiState() }
+                _uiState.update { AuthUiState() }
+            } else {
+                val error = result.exceptionOrNull()
+                _uiState.update { it.copy(error = error?.message) }
+            }
+        }
+    }
+
+    fun loginUser() {
+        viewModelScope.launch {
+
+            val result = _uiState.value.let {
+                authUserUseCase.login(
+                    nickname = it.nickname,
+                    password = it.password,
+                )
+            }
+
+            if (result.isSuccess) {
+                _uiState.update { AuthUiState() }
             } else {
                 val error = result.exceptionOrNull()
                 _uiState.update { it.copy(error = error?.message) }

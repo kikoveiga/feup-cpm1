@@ -25,8 +25,13 @@ class UserDataStoreImpl @Inject constructor(
         serializer = SerializableUsersStateSerializer
     )
 
-    override val isLoggedInFlow: Flow<Boolean>
-        get() = context.userDataStore.data.map { it.loggedInUserNickname != null }
+    override val isLoggedInFlow: Flow<Boolean?> =
+        context.userDataStore.data.map { state -> state.loggedInUserNickname != null }
+
+    override val loggedInUserFlow: Flow<User?> =
+        context.userDataStore.data.map { state ->
+            state.users.find { it.nickname == state.loggedInUserNickname }?.toUser(cryptoManager)
+        }
 
     override suspend fun doesUserExist(nickname: String): Boolean {
         return context.userDataStore.data.first().users.any { it.nickname == nickname }
@@ -50,18 +55,24 @@ class UserDataStoreImpl @Inject constructor(
         }
     }
 
-    override suspend fun login(nickname: String, password: String) {
-        context.userDataStore.updateData { current ->
-            val user = current.users.find { it.nickname == nickname }
-                ?: throw IllegalArgumentException("User not found")
+    override suspend fun loginUser(nickname: String, password: String): Result<Unit> {
+        return try {
+            context.userDataStore.updateData { current ->
+                val user = current.users.find { it.nickname == nickname }
+                    ?: throw IllegalArgumentException("User not found")
 
-            val passwordHash = cryptoManager.hashPassword(password)
-            val encodedHash = cryptoManager.encodeToBase64(passwordHash)
-            if (!encodedHash.contentEquals(user.passwordHash)) {
-                throw IllegalArgumentException("Invalid password")
+                val passwordHash = cryptoManager.hashPassword(password)
+                val encodedHash = cryptoManager.encodeToBase64(passwordHash)
+                if (!encodedHash.contentEquals(user.passwordHash)) {
+                    throw IllegalArgumentException("Invalid password")
+                }
+
+                current.copy(loggedInUserNickname = user.nickname)
             }
 
-            current.copy(loggedInUserNickname = user.nickname)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

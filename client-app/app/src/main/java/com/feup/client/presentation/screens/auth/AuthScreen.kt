@@ -30,7 +30,7 @@ import java.util.Locale
 @Composable
 fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
     val state = viewModel.uiState.collectAsState()
-    var passwordVisible by remember { mutableStateOf(false) }
+    var isPasswordVisible by remember { mutableStateOf(false) }
     var isLoginMode by remember { mutableStateOf(false) }
 
     if (state.value.error != null) {
@@ -91,13 +91,13 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
                     val visibilityOffIcon = painterResource(id = R.drawable.baseline_visibility_off_24)
 
                     Icon(
-                        painter = if (passwordVisible) visibilityOffIcon else visibilityIcon,
+                        painter = if (isPasswordVisible) visibilityOffIcon else visibilityIcon,
                         contentDescription = "Toggle password visibility",
-                        modifier = Modifier.clickable { passwordVisible = !passwordVisible }
+                        modifier = Modifier.clickable { isPasswordVisible = !isPasswordVisible }
                     )
                 }
             },
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             singleLine = true,
         )
 

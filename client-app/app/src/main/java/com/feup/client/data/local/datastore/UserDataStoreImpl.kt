@@ -96,4 +96,18 @@ class UserDataStoreImpl @Inject constructor(
             return cryptoManager.parsePemPublicKey(user.supermarketRsaPublicKey, "RSA")
         }
     }
+
+    override suspend fun deleteUser() {
+        context.userDataStore.data .first().let { state ->
+            val user = state.users.find { it.nickname == state.loggedInUserNickname }
+                ?: throw IllegalArgumentException("No user is logged in")
+
+            context.userDataStore.updateData { current ->
+                current.copy(
+                    users = current.users - user,
+                    loggedInUserNickname = null
+                )
+            }
+        }
+    }
 }

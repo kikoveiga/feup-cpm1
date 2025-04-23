@@ -2,8 +2,7 @@ package com.acme.supermarket.server.service
 
 
 import com.acme.supermarket.server.domain.toDto
-import com.acme.supermarket.server.dto.AuthResponseDto
-import com.acme.supermarket.server.dto.AuthVerificationRequestDto
+import com.acme.supermarket.server.dto.*
 import com.acme.supermarket.server.repository.TransactionRepository
 import com.acme.supermarket.server.repository.UserRepository
 import com.acme.supermarket.server.repository.VoucherRepository
@@ -17,7 +16,7 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
 @Service
-class AuthService(
+class PastRecordsService(
     private val nonceStore: NonceStore,
     private val userRepository: UserRepository,
     private val transactionRepository: TransactionRepository,
@@ -37,14 +36,16 @@ class AuthService(
         return nonceBase64
     }
 
-    fun verifyAndFetchUserData(request: AuthVerificationRequestDto): AuthResponseDto {
+    fun verifyAndFetchTransactions(request: PastRecordsRequestDto): List<TransactionDto> {
+
         val user = userRepository.findByUserUuid(request.uuid)
             ?: throw BadRequestException("User not found")
-
+        /*
         val storedNonce = nonceStore.getNonce(request.uuid)
             ?: throw BadRequestException("No nonce stored")
 
         val publicKey = getPublicKeyFromString(user.rsaPublicKey)
+
 
         val isValid = verifySignature(
             storedNonce.toByteArray(),
@@ -55,17 +56,37 @@ class AuthService(
         if (!isValid) {
             throw BadRequestException("Signature verification failed")
         }
-
+*/
         val transactions = transactionRepository.findByUserUserUuid(user.userUuid)
+
+        return transactions.map { it.toDto() }
+    }
+
+
+    fun verifyAndFetchVouchers(request: PastRecordsRequestDto): List<VoucherDto> {
+
+        val user = userRepository.findByUserUuid(request.uuid)
+            ?: throw BadRequestException("User not found")
+        /*
+        val storedNonce = nonceStore.getNonce(request.uuid)
+            ?: throw BadRequestException("No nonce stored")
+
+        val publicKey = getPublicKeyFromString(user.rsaPublicKey)
+
+
+        val isValid = verifySignature(
+            storedNonce.toByteArray(),
+            Base64.getDecoder().decode(request.signedNonce),
+            publicKey
+        )
+
+        if (!isValid) {
+            throw BadRequestException("Signature verification failed")
+        }
+*/
         val vouchers = voucherRepository.findByUserAndUsedFalse(user)
 
-        val transactionDtos = transactions.map { it.toDto() }
-        val voucherDtos = vouchers.map { it.toDto() }
-
-        return AuthResponseDto(
-            pastTransactions = transactionDtos,
-            unusedVouchers = voucherDtos
-        )
+        return vouchers.map { it.toDto() }
     }
 
     private fun verifySignature(data: ByteArray, signatureBytes: ByteArray, publicKey: PublicKey): Boolean {

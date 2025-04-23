@@ -15,7 +15,8 @@ class VoucherController(
     private val voucherRepository:VoucherRepository
 ) {
 
-    @PostMapping
+
+    @PostMapping("/create")
     fun createVoucher(@RequestBody dto: CreateVoucherDto): ResponseEntity<Any> {
         val user = userRepository.findByUserUuid(dto.uuid)
             ?: return ResponseEntity.badRequest().body("User not found")

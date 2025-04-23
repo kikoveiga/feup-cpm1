@@ -38,10 +38,4 @@ class UserRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
-
-    override suspend fun getVouchers(uuid: String): List<Voucher> =
-        api.getVouchers(uuid).map { it.toDomain() }
-
-    override suspend fun getTransactions(uuid: String): List<Transaction> =
-        api.getTransactions(uuid).map { it.toDomain() }
 }

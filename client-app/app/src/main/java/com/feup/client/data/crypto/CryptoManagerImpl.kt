@@ -19,7 +19,7 @@ import javax.inject.Inject
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-class   CryptoManagerImpl @Inject constructor() : CryptoManager {
+class CryptoManagerImpl @Inject constructor() : CryptoManager {
 
     override val androidKeyStore = "AndroidKeyStore"
     override val rsaAlias = "rsa_key"

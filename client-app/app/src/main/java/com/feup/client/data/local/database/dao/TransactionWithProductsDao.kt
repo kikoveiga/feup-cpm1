@@ -8,14 +8,13 @@ import androidx.room.Transaction
 import com.feup.client.data.local.database.entity.ProductEntity
 import com.feup.client.data.local.database.entity.TransactionEntity
 import com.feup.client.data.local.database.entity.TransactionWithProducts
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionWithProductsDao {
 
     @Transaction
     @Query("SELECT * FROM transactions")
-    fun getAllTransactionsWithProducts(): Flow<List<TransactionWithProducts>>
+    fun getAllTransactionsWithProducts(): List<TransactionWithProducts>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransactions(transactions: List<TransactionEntity>)

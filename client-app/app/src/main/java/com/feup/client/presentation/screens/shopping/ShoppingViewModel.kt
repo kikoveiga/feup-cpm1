@@ -1,6 +1,7 @@
 package com.feup.client.presentation.screens.shopping
 
 import androidx.lifecycle.ViewModel
+import com.feup.client.domain.model.Product
 import com.feup.client.domain.usecases.ScanProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,8 +17,56 @@ class ShoppingViewModel @Inject constructor(
     val uiState: StateFlow<ShoppingUiState> = _uiState
 
     suspend fun handleQrScan(base64Content: String) {
-        scanProductUseCase.invoke(base64Content).let { product ->
-            _uiState.update { it.copy(scannedProducts = it.scannedProducts + product) }
+        scanProductUseCase.invoke(base64Content).onSuccess { product ->
+            _uiState.update { state ->
+                val updated = state.scannedProducts.toMutableMap()
+                val existing = updated[product.uuid]
+
+                val updatedProduct = existing?.copy(quantity = existing.quantity + 1) ?: product.copy(quantity = 1)
+
+                updated[product.uuid] = updatedProduct
+                state.copy(scannedProducts = updated)
+            }
+        }.onFailure {
+            _uiState.update { it.copy(error = "Failed to scan product") }
         }
     }
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
+    }
+
+    fun updateQuantity(uuid: String, delta: Int) {
+        _uiState.update { state ->
+            val updated = state.scannedProducts.toMutableMap()
+            val product = updated[uuid]
+
+            if (product != null) {
+                val newQuantity = product.quantity + delta
+
+                if (newQuantity > 0) {
+                    updated[uuid] = product.copy(quantity = newQuantity)
+                } else {
+                    updated.remove(uuid)
+                }
+            }
+
+            state.copy(scannedProducts = updated)
+        }
+
+    }
+
+    fun removeProduct(uuid: String) {
+        _uiState.update { state ->
+            val updated = state.scannedProducts.toMutableMap()
+            updated.remove(uuid)
+            state.copy(scannedProducts = updated)
+        }
+    }
+
+    fun clearCart() {
+        _uiState.update { it.copy(scannedProducts = emptyMap()) }
+    }
+
+
 }

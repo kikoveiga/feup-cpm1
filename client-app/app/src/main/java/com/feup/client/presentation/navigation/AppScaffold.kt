@@ -36,9 +36,9 @@ fun AppScaffold() {
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             NavHost(navController = navController, startDestination = BottomNavScreen.Shopping.route) {
-                composable(BottomNavScreen.Shopping.route) { ShoppingScreen(navController) }
-                composable(BottomNavScreen.Transactions.route) { TransactionsScreen(navController) }
-                composable(BottomNavScreen.Profile.route) { ProfileScreen(navController) }
+                composable(BottomNavScreen.Shopping.route) { ShoppingScreen() }
+                composable(BottomNavScreen.Transactions.route) { TransactionsScreen() }
+                composable(BottomNavScreen.Profile.route) { ProfileScreen() }
             }
         }
     }

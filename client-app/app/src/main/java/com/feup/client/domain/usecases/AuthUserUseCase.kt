@@ -21,7 +21,7 @@ class AuthUserUseCase @Inject constructor(
         return try {
 
             if (userDataStore.doesUserExist(nickname = nickname)) {
-                return Result.failure(Exception("User with this nickname already exists"))
+                return Result.failure(Exception("User with this nickname already exists locally"))
             }
 
             val user = User(

@@ -13,10 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 
 @Composable
-fun TransactionsScreen(navController: NavController, viewModel: TransactionsViewModel = hiltViewModel()) {
+fun TransactionsScreen(viewModel: TransactionsViewModel = hiltViewModel()) {
     val state = viewModel.uiState.collectAsState()
     Column(
         modifier = Modifier.fillMaxSize(),

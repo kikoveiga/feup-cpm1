@@ -103,22 +103,8 @@ class UserService (
 
     private fun isValidCardNumber(cardNumber: String): Boolean {
         val cleanedNumber = cardNumber.replace(" ", "")
-        return cleanedNumber.length in 13..19 && isValidLuhn(cleanedNumber)
+        return cleanedNumber.length in 12..19
     }
 
-    private fun isValidLuhn(cardNumber: String): Boolean {
-        var sum = 0
-        var shouldDouble = false
-        for (i in cardNumber.length - 1 downTo 0) {
-            var digit = cardNumber[i].toString().toInt()
-            if (shouldDouble) {
-                digit *= 2
-                if (digit > 9) digit -= 9
-            }
-            sum += digit
-            shouldDouble = !shouldDouble
-        }
-        return sum % 10 == 0
-    }
 
 }

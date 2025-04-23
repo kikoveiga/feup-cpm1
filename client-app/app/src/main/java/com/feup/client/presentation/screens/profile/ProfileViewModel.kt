@@ -53,8 +53,9 @@ class ProfileViewModel @Inject constructor(
             }
 
             try {
-                userDataStore.saveUser(currentUser.copy(passwordHash = newPasswordHash))
-                _uiState.update { it?.copy(newPassword = "", snackbarMessage = "Password updated successfully!") }
+                val updatedUser = currentUser.copy(passwordHash = newPasswordHash)
+                userDataStore.saveUser(updatedUser)
+                _uiState.update { it?.copy(user = updatedUser, newPassword = "", snackbarMessage = "Password updated successfully!") }
             } catch (e:Exception) {
                 _uiState.update { it?.copy(snackbarMessage = e.message ?: "Failed to update password") }
             }

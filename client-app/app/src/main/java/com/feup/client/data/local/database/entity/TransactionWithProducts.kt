@@ -20,6 +20,7 @@ data class ProductEntity (
     val transactionId: Long,
     val name: String,
     val price: Double,
+    val quantity: Int = 1,
 )
 
 data class TransactionWithProducts(

@@ -42,9 +42,7 @@ class UserDataStoreImpl @Inject constructor(
             val existingUser = current.users.find { it.nickname == user.nickname }
             if (existingUser != null) {
                 current.copy(
-                    users = current.users - existingUser + user.toSerializable(
-                        cryptoManager
-                    )
+                    users = current.users - existingUser + user.toSerializable(cryptoManager)
                 )
             } else {
                 current.copy(

@@ -12,22 +12,25 @@ fun ProductDto.toDomain(): Product =
     Product(
         uuid = id,
         name = name,
-        price = price
+        price = price,
+        quantity = quantity
     )
 
 fun ProductDto.toEntity(transactionId: String): ProductEntity =
     ProductEntity(
         id = id.toLong(),
+        transactionId = transactionId.toLong(),
         name = name,
         price = price,
-        transactionId = transactionId.toLong()
+        quantity = quantity
     )
 
 fun ProductEntity.toDomain(): Product =
     Product(
         uuid = id.toString(),
         name = name,
-        price = price
+        price = price,
+        quantity = quantity
     )
 
 fun TransactionDto.toEntity(): TransactionEntity =

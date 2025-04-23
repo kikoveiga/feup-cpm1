@@ -16,7 +16,7 @@ class ShoppingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ShoppingUiState())
     val uiState: StateFlow<ShoppingUiState> = _uiState
 
-    suspend fun handleQrScan(base64Content: String) {
+    fun handleQrScan(base64Content: String) {
         scanProductUseCase.invoke(base64Content).onSuccess { product ->
             _uiState.update { state ->
                 val updated = state.scannedProducts.toMutableMap()

@@ -112,7 +112,10 @@ class CheckoutService(
     }
 
     private fun calculateTotalValue(items: List<ItemDto>): BigDecimal {
-        return items.fold(BigDecimal.ZERO) { total, item -> total.add(BigDecimal(item.price)) }
+        return items.fold(BigDecimal.ZERO) { total, item ->
+            val itemTotal = BigDecimal(item.price).multiply(BigDecimal(item.quantity))
+            total.add(itemTotal)
+        }
     }
 
     private fun getAccumulatedDiscount(userId: String): BigDecimal {

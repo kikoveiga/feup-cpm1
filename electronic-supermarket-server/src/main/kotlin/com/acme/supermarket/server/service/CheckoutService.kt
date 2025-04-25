@@ -1,12 +1,12 @@
 package com.acme.supermarket.server.service
 
+import com.acme.supermarket.server.domain.Product
 import com.acme.supermarket.server.domain.Transaction
+import com.acme.supermarket.server.domain.TransactionProduct
 import java.math.RoundingMode
 import com.acme.supermarket.server.domain.Voucher
 import com.acme.supermarket.server.dto.*
-import com.acme.supermarket.server.repository.TransactionRepository
-import com.acme.supermarket.server.repository.UserRepository
-import com.acme.supermarket.server.repository.VoucherRepository
+import com.acme.supermarket.server.repository.*
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -21,7 +21,9 @@ class CheckoutService(
     private val userRepository: UserRepository,
     private val voucherRepository: VoucherRepository,
     private val transactionRepository: TransactionRepository,
-    private val userService: UserService
+    private val userService: UserService,
+    private val productRepository: ProductRepository,
+    private val transactionProductRepository: TransactionProductRepository
 ) {
 
     fun processCheckout(transaction: TransactionToServerDto): TransactionFromServerDto {
@@ -81,7 +83,7 @@ class CheckoutService(
 
         userService.updateUserHistory(transaction.userUuid, newTotalSpent, accumulatedDiscount)
 
-        transactionRepository.save(
+        val savedTransaction = transactionRepository.save(
             Transaction(
                 user = user!!,
                 totalValue = totalValue,
@@ -91,6 +93,25 @@ class CheckoutService(
             )
         )
 
+        transaction.products.forEach { dto ->
+            var product = productRepository.findById(dto.id).orElse(null)
+            if (product == null) {
+                product = productRepository.save(
+                    Product(
+                        id = dto.id,
+                        name = dto.name,
+                        price = BigDecimal(dto.price)
+                    )
+                )
+            }
+            transactionProductRepository.save(
+                TransactionProduct(
+                    transaction = savedTransaction,
+                    product = product,
+                    quantity = dto.quantity
+                )
+            )
+        }
         return TransactionFromServerDto(
             isSuccess = true,
             totalPaid = totalValue.setScale(2, RoundingMode.HALF_UP),

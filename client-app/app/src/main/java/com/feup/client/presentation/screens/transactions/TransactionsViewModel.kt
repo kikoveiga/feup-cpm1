@@ -23,6 +23,7 @@ class TransactionsViewModel @Inject constructor(
     val uiState: StateFlow<TransactionsUiState> = _uiState
 
     init {
+        // Carregar transações locais inicialmente
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update {
                 it.copy(transactions = transactionRepository.getLocalTransactions())
@@ -30,9 +31,16 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateTransactions() {
-        userDataStore.getLoggedInUser().uuid?.let {
-            transactionRepository.fetchAndStoreRemoteTransactions(it)
+    fun updateTransactions() {
+        viewModelScope.launch(Dispatchers.IO) { // Garantir que a corrotina seja executada em segundo plano
+            userDataStore.getLoggedInUser().uuid?.let {
+                transactionRepository.fetchAndStoreRemoteTransactions(it)
+                // Após obter as transações, atualize o estado
+                val updatedTransactions = transactionRepository.getLocalTransactions()
+                _uiState.update { currentState ->
+                    currentState.copy(transactions = updatedTransactions)
+                }
+            }
         }
     }
 }

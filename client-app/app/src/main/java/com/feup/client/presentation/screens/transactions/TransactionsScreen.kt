@@ -21,14 +21,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun TransactionsScreen(viewModel: TransactionsViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
-    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = { scope.launch { viewModel.updateTransactions() }}) {
+        Button(onClick = { viewModel.updateTransactions() }) {
             Text("Load transactions")
         }
         Spacer(modifier = Modifier.height(16.dp))

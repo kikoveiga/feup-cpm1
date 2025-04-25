@@ -1,4 +1,4 @@
-package com.feup.jtp.checkout_terminal.data.model.dto
+package com.feup.terminal.data.model.dto
 
 import java.math.BigDecimal
 

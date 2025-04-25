@@ -1,7 +1,6 @@
 package com.feup.client.presentation.screens.shopping
 
 import androidx.lifecycle.ViewModel
-import com.feup.client.domain.model.Product
 import com.feup.client.domain.usecases.ScanProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,6 +66,4 @@ class ShoppingViewModel @Inject constructor(
     fun clearCart() {
         _uiState.update { it.copy(scannedProducts = emptyMap()) }
     }
-
-
 }

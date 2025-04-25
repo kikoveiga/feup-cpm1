@@ -1,9 +1,8 @@
-package com.feup.jtp.checkout_terminal.presentation
+package com.feup.terminal.presentation.screens
 
 import android.os.CountDownTimer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun FailureScreen(onTimeout: () -> Unit) {
+fun SuccessScreen(onTimeout: () -> Unit) {
     var timerStarted by remember { mutableStateOf(false) }
 
     // Start the timer only once when the screen appears
@@ -32,13 +31,19 @@ fun FailureScreen(onTimeout: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF44336)), // Red background
+            .background(Color(0xFF4CAF50)), // Green background
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "The transaction failed.",
+                text = "The transaction was a success",
                 fontSize = 24.sp,
+                color = Color.White // White text for readability
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "The gate should now open",
+                fontSize = 20.sp,
                 color = Color.White // White text for readability
             )
         }

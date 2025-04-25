@@ -1,4 +1,4 @@
-package com.feup.jtp.checkout_terminal
+package com.feup.terminal
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.feup.jtp.checkout_terminal.presentation.FailureScreen
-import com.feup.jtp.checkout_terminal.presentation.SuccessScreen
-import com.feup.jtp.checkout_terminal.presentation.QRScannerScreen
-import com.feup.jtp.checkout_terminal.ui.theme.CheckoutTerminalTheme
+import com.feup.terminal.presentation.screens.FailureScreen
+import com.feup.terminal.presentation.screens.SuccessScreen
+import com.feup.terminal.presentation.screens.QRScannerScreen
+import com.feup.terminal.presentation.theme.CheckoutTerminalTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

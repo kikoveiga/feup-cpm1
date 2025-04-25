@@ -1,20 +1,25 @@
-package com.feup.jtp.checkout_terminal.presentation
+package com.feup.terminal.presentation.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.*
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.google.zxing.BarcodeFormat
-import com.journeyapps.barcodescanner.DefaultDecoderFactory
-import com.journeyapps.barcodescanner.CompoundBarcodeView
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.material3.Text
-
+import com.feup.terminal.presentation.QRScannerViewModel
+import com.google.zxing.BarcodeFormat
+import com.journeyapps.barcodescanner.CompoundBarcodeView
+import com.journeyapps.barcodescanner.DefaultDecoderFactory
 
 @Composable
 fun QRScannerScreen(
@@ -53,7 +58,7 @@ fun QRScannerScreen(
                         if (!hasScanned) {
                             hasScanned = true
                             val qrCode = result.text
-                            viewModel.sendQRCode(qrCode) { success ->
+                            viewModel.handleQrScan(qrCode) { success ->
                                 onResult(success)
                             }
                         }

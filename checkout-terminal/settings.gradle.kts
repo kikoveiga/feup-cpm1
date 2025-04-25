@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Checkout-Terminal"
+rootProject.name = "Terminal"
 include(":app")
  

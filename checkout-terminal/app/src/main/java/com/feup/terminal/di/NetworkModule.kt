@@ -1,6 +1,6 @@
-package com.feup.jtp.checkout_terminal.di
+package com.feup.terminal.di
 
-import com.feup.jtp.checkout_terminal.data.remote.TerminalApi
+import com.feup.terminal.data.remote.TerminalApi
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -29,15 +29,23 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("http://localhost:8080/")
+    fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit {
+        val baseUrl =
+            if (isEmulator()) "http://10.0.2.2:8080/"
+            else "http://192.168.1.185:8080/" // Replace with your IP address
+
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()
+    }
 
     @Provides
     @Singleton
     fun providesTerminalApi(retrofit: Retrofit): TerminalApi =
         retrofit.create(TerminalApi::class.java)
+
+    // Placeholder function, can be replaced with actual implementation
+    private fun isEmulator(): Boolean = false
 }

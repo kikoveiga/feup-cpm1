@@ -1,6 +1,5 @@
-package com.feup.jtp.checkout_terminal.ui.theme
+package com.feup.terminal.presentation.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

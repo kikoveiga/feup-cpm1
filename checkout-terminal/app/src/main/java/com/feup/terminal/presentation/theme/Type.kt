@@ -1,4 +1,4 @@
-package com.feup.jtp.checkout_terminal.ui.theme
+package com.feup.terminal.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

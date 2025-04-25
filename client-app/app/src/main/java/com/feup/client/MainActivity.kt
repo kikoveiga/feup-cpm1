@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.feup.client.di.UserDataStoreEntryPoint
 import com.feup.client.presentation.navigation.AppScaffold
 import com.feup.client.presentation.screens.auth.AuthScreen
-import com.feup.client.presentation.theme.ClientappTheme
+import com.feup.client.presentation.theme.ClientTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-                ClientappTheme {
+                ClientTheme {
                     val context = LocalContext.current
                     val userDataStore = remember {
                         EntryPointAccessors.fromApplication(

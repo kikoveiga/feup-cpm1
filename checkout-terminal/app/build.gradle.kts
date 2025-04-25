@@ -4,14 +4,15 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinAndroidKsp)
     alias(libs.plugins.hiltAndroid)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
-    namespace = "com.feup.jtp.checkout_terminal"
+    namespace = "com.feup.terminal"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.feup.jtp.checkout_terminal"
+        applicationId = "com.feup.terminal"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -51,13 +52,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.hilt.android)
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.zxing.android.embedded)
 
-
     implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
 
     implementation(libs.retrofit.core)

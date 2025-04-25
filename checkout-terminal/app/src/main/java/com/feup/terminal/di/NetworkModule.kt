@@ -1,6 +1,6 @@
-package com.feup.client.di
+package com.feup.terminal.di
 
-import com.feup.client.data.remote.SupermarketApi
+import com.feup.terminal.data.remote.TerminalApi
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -32,7 +32,7 @@ object NetworkModule {
     fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit {
         val baseUrl =
             if (isEmulator()) "http://10.0.2.2:8080/"
-            else "http://10.10.6.198:8080/" // Replace with your IP address
+            else "http://192.168.1.185:8080/" // Replace with your IP address
 
         return Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -43,11 +43,9 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun providesSupermarketApi(retrofit: Retrofit): SupermarketApi =
-        retrofit.create(SupermarketApi::class.java)
+    fun providesTerminalApi(retrofit: Retrofit): TerminalApi =
+        retrofit.create(TerminalApi::class.java)
 
     // Placeholder function, can be replaced with actual implementation
     private fun isEmulator(): Boolean = false
 }
-
-

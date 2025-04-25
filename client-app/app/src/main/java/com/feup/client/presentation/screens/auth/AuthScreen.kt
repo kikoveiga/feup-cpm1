@@ -31,7 +31,7 @@ import java.util.Locale
 fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
     val state = viewModel.uiState.collectAsState()
     var isPasswordVisible by remember { mutableStateOf(false) }
-    var isLoginMode by remember { mutableStateOf(false) }
+    var isLoginMode by remember { mutableStateOf(true) }
 
     if (state.value.error != null) {
         AlertDialog(

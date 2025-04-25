@@ -4,10 +4,10 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class TransactionDto(
-    val uuid: String,
-    val userUuid: String,
-    val totalValue: BigDecimal,
-    val accumulatedDiscountUsed: BigDecimal,
-    val voucherDiscountGenerated: BigDecimal,
-    val timestamp: LocalDateTime
+    val id: String,
+    val date: String,
+    val products: List<ProductDto>,
+    val price: Double,
+    val discount: Double,
+    val voucherUsed: VoucherDto? = null
 )

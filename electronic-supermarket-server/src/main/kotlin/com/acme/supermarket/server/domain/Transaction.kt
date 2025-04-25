@@ -1,6 +1,8 @@
 package com.acme.supermarket.server.domain
 
+import com.acme.supermarket.server.dto.ProductDto
 import com.acme.supermarket.server.dto.TransactionDto
+import com.acme.supermarket.server.dto.VoucherDto
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -26,18 +28,26 @@ data class Transaction(
     val voucherDiscountGenerated: BigDecimal = BigDecimal.ZERO,
 
     @Column(nullable = false)
-    val timestamp: LocalDateTime = LocalDateTime.now()
+    val timestamp: LocalDateTime = LocalDateTime.now(),
 
+    @OneToMany(mappedBy = "transaction", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val transactionProducts: List<TransactionProduct> = listOf(),
+
+    @ManyToOne
+    @JoinColumn(name = "voucher_id")
+    val voucherUsed: Voucher? = null
 )
+
 fun Transaction.toDto(): TransactionDto {
     return TransactionDto(
-        uuid = this.uuid,
-        userUuid = this.user.userUuid,
-        totalValue = this.totalValue,
-        accumulatedDiscountUsed = this.accumulatedDiscountUsed,
-        voucherDiscountGenerated = this.voucherDiscountGenerated,
-        timestamp = this.timestamp
+        id = this.uuid,
+        date = this.timestamp.toString(),
+        price = this.totalValue.toDouble(),
+        discount = this.accumulatedDiscountUsed.toDouble(),
+        products = this.transactionProducts.map { it.product.toDto(it.quantity) },
+        voucherUsed = this.voucherUsed?.toDto()
     )
 }
+
 
 

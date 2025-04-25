@@ -35,7 +35,7 @@ class CheckoutService(
 */
         validateRequest(transaction)
 
-        var totalValue = calculateTotalValue(transaction.items)
+        var totalValue = calculateTotalValue(transaction.products)
         var accumulatedDiscount = getAccumulatedDiscount(transaction.userUuid)
         var accumulatedDiscountUsed = BigDecimal.ZERO
 
@@ -53,8 +53,9 @@ class CheckoutService(
         }
 
         var voucherDiscount = BigDecimal.ZERO
+        var voucher: Voucher? = null
         if (transaction.voucherId != null) {
-            val voucher = voucherRepository.findByUuid(transaction.voucherId)
+            voucher = voucherRepository.findByUuid(transaction.voucherId)
 
             if (voucher != null && voucher.user.userUuid == transaction.userUuid && !voucher.used) {
                 voucherDiscount = totalValue.multiply(BigDecimal(0.15))
@@ -71,8 +72,11 @@ class CheckoutService(
             }
         }
         val user = userRepository.findByUserUuid(transaction.userUuid)
+        if (user == null) {
+            throw BadRequestException("User not found for the given UUID.")
+        }
 
-        val newTotalSpent = totalValue.add(user?.totalSpent)
+        val newTotalSpent = totalValue.add(user.totalSpent)
         generateVouchersIfEligible(transaction.userUuid,newTotalSpent)
 
         userService.updateUserHistory(transaction.userUuid, newTotalSpent, accumulatedDiscount)
@@ -82,7 +86,8 @@ class CheckoutService(
                 user = user!!,
                 totalValue = totalValue,
                 accumulatedDiscountUsed = if (transaction.useAccumulatedDiscount) accumulatedDiscountUsed else BigDecimal.ZERO,
-                voucherDiscountGenerated = voucherDiscount
+                voucherDiscountGenerated = voucherDiscount,
+                voucherUsed = voucher
             )
         )
 
@@ -107,13 +112,13 @@ class CheckoutService(
     }
 
     private fun generateMessage(transaction: TransactionToServerDto): String {
-        val itemsString = transaction.items.joinToString(",") { "${it.productId}:${it.price}" }
+        val itemsString = transaction.products.joinToString(",") { "${it.id}:${it.price}" }
         return "${transaction.userUuid}|$itemsString|${transaction.voucherId ?: ""}|${transaction.useAccumulatedDiscount}"
     }
 
-    private fun calculateTotalValue(items: List<ItemDto>): BigDecimal {
-        return items.fold(BigDecimal.ZERO) { total, item ->
-            val itemTotal = BigDecimal(item.price).multiply(BigDecimal(item.quantity))
+    private fun calculateTotalValue(items: List<ProductDto>): BigDecimal {
+        return items.fold(BigDecimal.ZERO) { total, product ->
+            val itemTotal = BigDecimal(product.price).multiply(BigDecimal(product.quantity))
             total.add(itemTotal)
         }
     }
@@ -154,12 +159,12 @@ class CheckoutService(
     private fun validateRequest(transaction: TransactionToServerDto) {
         //If the requests are blank
         if (transaction.userUuid.isBlank()) throw BadRequestException("User UUID cannot be empty.")
-        if (transaction.items.isEmpty()) throw BadRequestException("Transaction must contain at least one item.")
-        transaction.items.forEachIndexed { index, item ->
-            if (item.productId.isBlank()) {
+        if (transaction.products.isEmpty()) throw BadRequestException("Transaction must contain at least one item.")
+        transaction.products.forEachIndexed { index, product ->
+            if (product.id.isBlank()) {
                 throw BadRequestException("Item at index $index has an empty productId.")
             }
-            if (item.price <= 0.0) {
+            if (product.price <= 0.0) {
                 throw BadRequestException("Item at index $index has an invalid price. Must be greater than 0.")
             }
         }

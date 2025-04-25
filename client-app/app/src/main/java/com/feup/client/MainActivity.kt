@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.feup.client.di.UserDataStoreEntryPoint
 import com.feup.client.presentation.navigation.AppScaffold
 import com.feup.client.presentation.screens.auth.AuthScreen
@@ -24,6 +25,7 @@ import dagger.hilt.android.EntryPointAccessors
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 

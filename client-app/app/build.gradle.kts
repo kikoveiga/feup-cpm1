@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.gson)

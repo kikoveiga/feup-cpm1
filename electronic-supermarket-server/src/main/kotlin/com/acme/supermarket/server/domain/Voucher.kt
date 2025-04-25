@@ -19,8 +19,7 @@ data class Voucher(
 
 fun Voucher.toDto(): VoucherDto {
     return VoucherDto(
-        uuid = this.uuid,
-        userUuid = this.user.userUuid,
-        used = this.used
+        id = this.uuid,
+        isUsed = this.used
     )
 }

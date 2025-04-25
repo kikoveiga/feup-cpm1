@@ -18,8 +18,8 @@ fun ProductDto.toDomain(): Product =
 
 fun ProductDto.toEntity(transactionId: String): ProductEntity =
     ProductEntity(
-        id = id.toLong(),
-        transactionId = transactionId.toLong(),
+        id = id,
+        transactionId = transactionId,
         name = name,
         price = price,
         quantity = quantity
@@ -35,7 +35,7 @@ fun ProductEntity.toDomain(): Product =
 
 fun TransactionDto.toEntity(): TransactionEntity =
     TransactionEntity(
-        id = id.toLong(),
+        id = id,
         date = date,
         price = price,
         discount = discount,

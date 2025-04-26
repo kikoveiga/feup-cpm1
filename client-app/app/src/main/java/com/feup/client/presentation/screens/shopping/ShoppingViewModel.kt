@@ -1,6 +1,7 @@
 package com.feup.client.presentation.screens.shopping
 
 import androidx.lifecycle.ViewModel
+import com.feup.client.domain.usecases.GenerateTransactionQrUseCase
 import com.feup.client.domain.usecases.ScanProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,6 +12,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShoppingViewModel @Inject constructor(
     private val scanProductUseCase: ScanProductUseCase,
+    private val generateTransactionQrUseCase: GenerateTransactionQrUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ShoppingUiState())
     val uiState: StateFlow<ShoppingUiState> = _uiState
@@ -26,6 +28,7 @@ class ShoppingViewModel @Inject constructor(
                 updated[product.uuid] = updatedProduct
                 state.copy(scannedProducts = updated)
             }
+            updateTotalPrice()
         }.onFailure {
             _uiState.update { it.copy(error = "Failed to scan product") }
         }
@@ -53,6 +56,12 @@ class ShoppingViewModel @Inject constructor(
             state.copy(scannedProducts = updated)
         }
 
+        updateTotalPrice()
+    }
+
+    private fun updateTotalPrice() {
+        val total = _uiState.value.scannedProducts.values.sumOf { it.price * it.quantity }
+        _uiState.update { it.copy(totalPrice = total) }
     }
 
     fun removeProduct(uuid: String) {
@@ -65,5 +74,11 @@ class ShoppingViewModel @Inject constructor(
 
     fun clearCart() {
         _uiState.update { it.copy(scannedProducts = emptyMap()) }
+    }
+
+    fun getTransactionQrContent(): String {
+        val products = _uiState.value.scannedProducts.values.toList()
+        val transaction = generateTransactionQrUseCase.invoke(products = products)
+        return generateTransactionQrUseCase.toQrContent(transaction)
     }
 }

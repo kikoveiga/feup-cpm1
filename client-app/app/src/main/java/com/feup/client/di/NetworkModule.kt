@@ -32,7 +32,7 @@ object NetworkModule {
     fun provideRetrofit(client: OkHttpClient, gson: Gson): Retrofit {
         val baseUrl =
             if (isEmulator()) "http://10.0.2.2:8080/"
-            else "http://10.10.6.198:8080/" // Replace with your IP address
+            else "http://172.20.10.7:8080/" // Replace with your IP address
 
         return Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -47,7 +47,7 @@ object NetworkModule {
         retrofit.create(SupermarketApi::class.java)
 
     // Placeholder function, can be replaced with actual implementation
-    private fun isEmulator(): Boolean = true
+    private fun isEmulator(): Boolean = false
 }
 
 

@@ -1,5 +1,8 @@
 package com.feup.client.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Transaction(
     val id: String,
     val date: String,

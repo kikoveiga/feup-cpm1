@@ -4,5 +4,6 @@ import com.feup.client.domain.model.Product
 
 data class ShoppingUiState(
     val scannedProducts: Map<String, Product> = emptyMap(),
+    val totalPrice: Double = 0.0,
     val error: String? = null,
 )

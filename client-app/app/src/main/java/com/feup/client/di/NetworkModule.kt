@@ -34,6 +34,7 @@ object NetworkModule {
             if (isEmulator()) "http://10.0.2.2:8080/"
             else "http://192.168.1.93:8080/" // Replace with your IP address
 
+
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create(gson))
@@ -47,7 +48,7 @@ object NetworkModule {
         retrofit.create(SupermarketApi::class.java)
 
     // Placeholder function, can be replaced with actual implementation
-    private fun isEmulator(): Boolean = true
+    private fun isEmulator(): Boolean = false
 }
 
 

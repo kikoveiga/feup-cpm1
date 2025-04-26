@@ -7,8 +7,8 @@ import retrofit2.http.POST
 
 interface TerminalApi {
 
-    @POST("/api/checkout")
-    suspend fun checkoutCart(
+    @POST("/api/sendTransactionToServer")
+    suspend fun sendTransactionToServer(
         @Body request: TransactionToServerDto
     ): TransactionFromServerDto
 }

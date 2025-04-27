@@ -81,38 +81,44 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
     }
 
     if (showCheckoutDialog.value) {
-        val qrContent = viewModel.getTransactionQrContent()
-        val qrBitmap = remember(qrContent) { generateQrCode(qrContent) }
+        val qrContent = state.value.qrContent
 
-        AlertDialog(
-            onDismissRequest = { showCheckoutDialog.value = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.clearCart()
-                        showCheckoutDialog.value = false
+        if (qrContent != null) {
+            val qrBitmap = remember(qrContent) { generateQrCode(qrContent) }
+
+            AlertDialog(
+                onDismissRequest = { },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.clearCart()
+                            showCheckoutDialog.value = false
+                        }
+                    ) {
+                        Text("OK")
                     }
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showCheckoutDialog.value = false }
-                ) {
-                    Text("Cancel")
-                }
-            },
-            text = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Total: %.2f€".format(state.value.totalPrice))
-                    Spacer(Modifier.height(16.dp))
-                    Image(bitmap = qrBitmap.asImageBitmap(), contentDescription = "Transaction QR")
-                    Spacer(Modifier.height(16.dp))
-                    Text("Show this QR code to the terminal app to finish your purchase.")
-                }
-            },
-        )
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showCheckoutDialog.value = false }
+                    ) {
+                        Text("Cancel")
+                    }
+                },
+                text = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Total: %.2f€".format(state.value.totalPrice))
+                        Spacer(Modifier.height(16.dp))
+                        Image(
+                            bitmap = qrBitmap.asImageBitmap(),
+                            contentDescription = "Transaction QR"
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Text("Show this QR code to the terminal app to finish your purchase.")
+                    }
+                },
+            )
+        }
     }
 
 

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Transaction(
-    val id: String,
+    val userUuid: String,
     val date: String,
     val products: List<Product>,
     val price: Double,

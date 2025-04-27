@@ -8,11 +8,11 @@ import javax.inject.Inject
 
 class GenerateTransactionQrUseCase @Inject constructor() {
 
-    fun invoke(products: List<Product>, discount: Double = 0.0, voucher: Voucher? = null): Transaction {
+    fun invoke(userUuid: String, products: List<Product>, discount: Double = 0.0, voucher: Voucher? = null): Transaction {
 
         val totalPrice = products.sumOf { it.price * it.quantity } - discount
         return Transaction(
-            id = "transaction-${System.currentTimeMillis()}",
+            userUuid = userUuid,
             date = System.currentTimeMillis().toString(),
             products = products,
             price = totalPrice,

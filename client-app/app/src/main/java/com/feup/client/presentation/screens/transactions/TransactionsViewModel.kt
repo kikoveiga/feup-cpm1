@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,7 +22,6 @@ class TransactionsViewModel @Inject constructor(
     val uiState: StateFlow<TransactionsUiState> = _uiState
 
     init {
-        // Carregar transações locais inicialmente
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update {
                 it.copy(transactions = transactionRepository.getLocalTransactions())
@@ -29,14 +29,32 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
+    }
+
     fun updateTransactions() {
-        viewModelScope.launch(Dispatchers.IO) { // Garantir que a corrotina seja executada em segundo plano
-            userDataStore.getLoggedInUser().uuid?.let {
-                transactionRepository.fetchAndStoreRemoteTransactions(it)
-                // Após obter as transações, atualize o estado
-                val updatedTransactions = transactionRepository.getLocalTransactions()
-                _uiState.update { currentState ->
-                    currentState.copy(transactions = updatedTransactions)
+        viewModelScope.launch(Dispatchers.IO) {
+            val userUuid = userDataStore.getLoggedInUser().uuid
+            if (userUuid != null) {
+                val result = transactionRepository.fetchAndStoreRemoteTransactions(userUuid)
+
+                withContext(Dispatchers.Main) {
+                    if (result.isSuccess) {
+                        val updatedTransactions = transactionRepository.getLocalTransactions()
+                        _uiState.update {
+                            it.copy(
+                                transactions = updatedTransactions,
+                                error = null
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                error = result.exceptionOrNull()?.message
+                            )
+                        }
+                    }
                 }
             }
         }

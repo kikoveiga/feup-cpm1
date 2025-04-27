@@ -1,19 +1,24 @@
 package com.feup.client.presentation.screens.shopping
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.feup.client.domain.local.UserDataStore
 import com.feup.client.domain.usecases.GenerateTransactionQrUseCase
 import com.feup.client.domain.usecases.ScanProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ShoppingViewModel @Inject constructor(
     private val scanProductUseCase: ScanProductUseCase,
-    private val generateTransactionQrUseCase: GenerateTransactionQrUseCase
+    private val generateTransactionQrUseCase: GenerateTransactionQrUseCase,
+    private val userDataStore: UserDataStore
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(ShoppingUiState())
     val uiState: StateFlow<ShoppingUiState> = _uiState
 
@@ -76,9 +81,16 @@ class ShoppingViewModel @Inject constructor(
         _uiState.update { it.copy(scannedProducts = emptyMap()) }
     }
 
-    fun getTransactionQrContent(): String {
-        val products = _uiState.value.scannedProducts.values.toList()
-        val transaction = generateTransactionQrUseCase.invoke(products = products)
-        return generateTransactionQrUseCase.toQrContent(transaction)
+    fun getTransactionQrContent() {
+        viewModelScope.launch {
+
+            val products = _uiState.value.scannedProducts.values.toList()
+            val userUuid = userDataStore.getLoggedInUser().uuid ?: throw IllegalStateException("User is not logged in")
+
+            val transaction = generateTransactionQrUseCase.invoke(userUuid = userUuid, products = products)
+            val qrContent = generateTransactionQrUseCase.toQrContent(transaction)
+
+            _uiState.update { it.copy(qrContent = qrContent) }
+        }
     }
 }

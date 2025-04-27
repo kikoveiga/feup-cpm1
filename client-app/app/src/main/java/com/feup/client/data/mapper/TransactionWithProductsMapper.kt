@@ -27,7 +27,7 @@ fun ProductDto.toEntity(transactionId: String): ProductEntity =
 
 fun ProductEntity.toDomain(): Product =
     Product(
-        uuid = id.toString(),
+        uuid = id,
         name = name,
         price = price,
         quantity = quantity
@@ -41,19 +41,9 @@ fun TransactionDto.toEntity(): TransactionEntity =
         discount = discount,
     )
 
-fun TransactionDto.toDomain(): Transaction =
-    Transaction(
-        id = id,
-        date = date,
-        products = products.map { it.toDomain() },
-        price = price,
-        discount = discount,
-        voucherUsed = voucherUsed?.toDomain()
-    )
-
 fun TransactionWithProducts.toDomain(): Transaction =
     Transaction(
-        id = transactionEntity.id.toString(),
+        userUuid = transactionEntity.id,
         date = transactionEntity.date,
         products = products.map { it.toDomain() },
         price = transactionEntity.price,

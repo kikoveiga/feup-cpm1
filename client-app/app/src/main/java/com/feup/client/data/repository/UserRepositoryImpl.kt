@@ -11,6 +11,9 @@ import com.feup.client.domain.model.Voucher
 import com.feup.client.domain.repository.UserRepository
 import kotlinx.serialization.json.Json
 import retrofit2.HttpException
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -34,6 +37,13 @@ class UserRepositoryImpl @Inject constructor(
                 errorBody ?: "Unknown error"
             }
             Result.failure(Exception(message))
+
+        } catch (e: UnknownHostException) {
+            Result.failure(Exception("Failed to connect to server"))
+        } catch (e: ConnectException) {
+            Result.failure(Exception("Failed to connect to server"))
+        } catch (e: SocketTimeoutException) {
+            Result.failure(Exception("Connection to server timed out"))
         } catch (e: Exception) {
             Result.failure(e)
         }

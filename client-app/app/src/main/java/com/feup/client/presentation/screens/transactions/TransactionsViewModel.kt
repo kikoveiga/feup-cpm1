@@ -39,16 +39,18 @@ class TransactionsViewModel @Inject constructor(
             if (userUuid != null) {
                 val result = transactionRepository.fetchAndStoreRemoteTransactions(userUuid)
 
-                withContext(Dispatchers.Main) {
-                    if (result.isSuccess) {
-                        val updatedTransactions = transactionRepository.getLocalTransactions()
+                if (result.isSuccess) {
+                    val updatedTransactions = transactionRepository.getLocalTransactions()
+                    withContext(Dispatchers.Main) {
                         _uiState.update {
                             it.copy(
                                 transactions = updatedTransactions,
                                 error = null
                             )
                         }
-                    } else {
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
                         _uiState.update {
                             it.copy(
                                 error = result.exceptionOrNull()?.message

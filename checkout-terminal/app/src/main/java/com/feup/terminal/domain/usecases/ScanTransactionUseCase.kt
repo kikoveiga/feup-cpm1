@@ -5,7 +5,6 @@ import com.feup.terminal.domain.model.Transaction
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
-
 class ScanTransactionUseCase @Inject constructor(
     private val cryptoManager: CryptoManager // you won't need this if not decoding anymore
 ) {

@@ -18,7 +18,11 @@ class QRScannerViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun handleQrScan(base64Content: String, onResult: (Boolean) -> Unit) {
+        println("Scanned QR content: $base64Content") // <-- Print the raw QR scan
+
         scanTransactionUseCase.invoke(base64Content).onSuccess { transactionData ->
+            println("Parsed transaction data: $transactionData") // <-- Print the parsed transaction
+
             val transactionToServerDto = transactionToDto(transactionData)
 
             if (!validateTransaction(transactionToServerDto)) {
@@ -29,9 +33,11 @@ class QRScannerViewModel @Inject constructor(
             sendTransactionToServer(transactionToServerDto, onResult)
 
         }.onFailure {
+            it.printStackTrace()
             onResult(false)
         }
     }
+
 
     private fun sendTransactionToServer(dto: TransactionToServerDto, onResult: (Boolean) -> Unit) {
         // Need to launch coroutine outside
@@ -59,7 +65,7 @@ class QRScannerViewModel @Inject constructor(
             },
             voucherId = transaction.voucherUsed?.id,
             useAccumulatedDiscount = transaction.discount > 0.0,
-            signature = "" // <-- Here you need to get the signature! (is it stored somewhere in Transaction?)
+            signature = "AAAAAAAA" // <-- Here you need to get the signature! (is it stored somewhere in Transaction?)
         )
     }
 

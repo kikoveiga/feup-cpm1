@@ -7,3 +7,4 @@ data class TransactionToServerDto(
     val useAccumulatedDiscount: Boolean,
     val signature: String
 )
+

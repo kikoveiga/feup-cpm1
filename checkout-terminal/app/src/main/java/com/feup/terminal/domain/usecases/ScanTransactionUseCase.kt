@@ -5,6 +5,23 @@ import com.feup.terminal.domain.model.Transaction
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
+
+class ScanTransactionUseCase @Inject constructor(
+    private val cryptoManager: CryptoManager // you won't need this if not decoding anymore
+) {
+    fun invoke(data: String): Result<Transaction> {
+        return try {
+            // NO decode step here
+            val product = Json.decodeFromString<Transaction>(data)
+            Result.success(product)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+}
+
+
+/*
 class ScanTransactionUseCase @Inject constructor(
     private val cryptoManager: CryptoManager
 ) {
@@ -21,3 +38,4 @@ class ScanTransactionUseCase @Inject constructor(
         }
     }
 }
+ */

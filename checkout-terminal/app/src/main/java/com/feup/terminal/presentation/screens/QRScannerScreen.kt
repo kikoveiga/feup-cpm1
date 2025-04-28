@@ -1,75 +1,42 @@
 package com.feup.terminal.presentation.screens
 
-import android.Manifest
-import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.feup.terminal.presentation.QRScannerViewModel
-import com.google.zxing.BarcodeFormat
-import com.journeyapps.barcodescanner.CompoundBarcodeView
-import com.journeyapps.barcodescanner.DefaultDecoderFactory
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun QRScannerScreen(
     onResult: (Boolean) -> Unit,
     viewModel: QRScannerViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    val cameraPermissionGranted = remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
-        )
-    }
+    val scope = rememberCoroutineScope()
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { granted -> cameraPermissionGranted.value = granted }
-    )
-
-    LaunchedEffect(Unit) {
-        if (!cameraPermissionGranted.value) {
-            permissionLauncher.launch(Manifest.permission.CAMERA)
+    val launcher = rememberLauncherForActivityResult(ScanContract()) { result ->
+        if (result.contents != null) {
+            scope.launch {
+                viewModel.handleQrScan(result.contents) { success ->
+                    onResult(success)
+                }
+            }
+        } else {
+            onResult(false)
         }
     }
 
-    if (cameraPermissionGranted.value) {
-        var hasScanned by remember { mutableStateOf(false) }
+    val scanOptions = ScanOptions().apply {
+        setOrientationLocked(false)
+        setPrompt("Scan a QR code")
+        setBeepEnabled(false)
+    }
 
-        AndroidView(
-            factory = { ctx ->
-                CompoundBarcodeView(ctx).apply {
-                    decoderFactory = DefaultDecoderFactory(listOf(BarcodeFormat.QR_CODE))
-                    decodeContinuous { result ->
-                        if (!hasScanned) {
-                            hasScanned = true
-                            val qrCode = result.text
-                            viewModel.handleQrScan(qrCode) { success ->
-                                onResult(success)
-                            }
-                        }
-                    }
-                    post { resume() }
-                }
-            },
-            modifier = Modifier
-        )
-
-    } else {
-        Text("Waiting for camera permission...")
+    LaunchedEffect(Unit) {
+        launcher.launch(scanOptions)
     }
 }

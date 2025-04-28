@@ -218,7 +218,10 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
             ) {
                 if (state.value.scannedProducts.isNotEmpty()) {
                     Button(
-                        onClick = { showCheckoutDialog.value = true },
+                        onClick = {
+                            showCheckoutDialog.value = true
+                            viewModel.generateTransactionQrContent()
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Checkout")

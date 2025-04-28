@@ -81,7 +81,7 @@ class ShoppingViewModel @Inject constructor(
         _uiState.update { it.copy(scannedProducts = emptyMap()) }
     }
 
-    fun getTransactionQrContent() {
+    fun generateTransactionQrContent() {
         viewModelScope.launch {
 
             val products = _uiState.value.scannedProducts.values.toList()

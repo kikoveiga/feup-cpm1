@@ -23,8 +23,10 @@ class TransactionsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            val userUuid = userDataStore.getLoggedInUser().uuid ?: return@launch
+            val localTransactions = transactionRepository.getLocalTransactions(userUuid)
             _uiState.update {
-                it.copy(transactions = transactionRepository.getLocalTransactions())
+                it.copy(transactions = localTransactions)
             }
         }
     }
@@ -40,7 +42,7 @@ class TransactionsViewModel @Inject constructor(
                 val result = transactionRepository.fetchAndStoreRemoteTransactions(userUuid)
 
                 if (result.isSuccess) {
-                    val updatedTransactions = transactionRepository.getLocalTransactions()
+                    val updatedTransactions = transactionRepository.getLocalTransactions(userUuid)
                     withContext(Dispatchers.Main) {
                         _uiState.update {
                             it.copy(

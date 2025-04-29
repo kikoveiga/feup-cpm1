@@ -57,11 +57,13 @@ class QRScannerViewModel @Inject constructor(
     private fun transactionToDto(transaction: Transaction): TransactionToServerDto {
         return TransactionToServerDto(
             userUuid = transaction.userUuid,
+            date = transaction.date,
             products = transaction.products.map { product ->
                 ProductDto(
-                    id = product.uuid,
+                    productUuid = product.productUuid,
                     price = product.price,
-                    name = product.name
+                    name = product.name,
+                    quantity = product.quantity
                 )
             },
             voucherId = transaction.voucherUsed?.id,
@@ -73,7 +75,8 @@ class QRScannerViewModel @Inject constructor(
     private fun validateTransaction(transactionData: TransactionToServerDto): Boolean {
         if (transactionData.userUuid.isBlank()) return false
         if (transactionData.products.isEmpty() || transactionData.products.size > 10) return false
-        if (transactionData.products.any { it.id.isBlank() || it.price < 0.0 }) return false
+        if (transactionData.products.any { it.productUuid.isBlank() || it.price < 0.0 }) return false
+
         return true
     }
 }

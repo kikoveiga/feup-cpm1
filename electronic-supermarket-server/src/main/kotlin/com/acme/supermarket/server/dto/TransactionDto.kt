@@ -4,7 +4,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class TransactionDto(
-    val id: String,
+    val transactionUuid: String,
     val date: String,
     val products: List<ProductDto>,
     val price: Double,

@@ -94,11 +94,11 @@ class CheckoutService(
         )
 
         transaction.products.forEach { dto ->
-            var product = productRepository.findById(dto.id).orElse(null)
+            var product = productRepository.findById(dto.productUuid).orElse(null)
             if (product == null) {
                 product = productRepository.save(
                     Product(
-                        id = dto.id,
+                        productUuid = dto.productUuid,
                         name = dto.name,
                         price = BigDecimal(dto.price)
                     )
@@ -133,7 +133,7 @@ class CheckoutService(
     }
 
     private fun generateMessage(transaction: TransactionToServerDto): String {
-        val itemsString = transaction.products.joinToString(",") { "${it.id}:${it.price}" }
+        val itemsString = transaction.products.joinToString(",") { "${it.productUuid}:${it.price}" }
         return "${transaction.userUuid}|$itemsString|${transaction.voucherId ?: ""}|${transaction.useAccumulatedDiscount}"
     }
 
@@ -182,13 +182,16 @@ class CheckoutService(
         if (transaction.userUuid.isBlank()) throw BadRequestException("User UUID cannot be empty.")
         if (transaction.products.isEmpty()) throw BadRequestException("Transaction must contain at least one item.")
         transaction.products.forEachIndexed { index, product ->
-            if (product.id.isBlank()) {
+            if (product.productUuid.isBlank()) {
                 throw BadRequestException("Item at index $index has an empty productId.")
             }
             if (product.price <= 0.0) {
                 throw BadRequestException("Item at index $index has an invalid price. Must be greater than 0.")
             }
         }
+        val totalQuantity = transaction.products.sumOf { it.quantity }
+        if (totalQuantity > 10) throw BadRequestException("You can only purchase up to 10 items in total per transaction.")
+
         if (transaction.signature.isBlank()) throw BadRequestException("Signature cannot be empty.")
     }
 

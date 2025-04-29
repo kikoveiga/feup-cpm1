@@ -26,11 +26,11 @@ class ShoppingViewModel @Inject constructor(
         scanProductUseCase.invoke(base64Content).onSuccess { product ->
             _uiState.update { state ->
                 val updated = state.scannedProducts.toMutableMap()
-                val existing = updated[product.uuid]
+                val existing = updated[product.productUuid]
 
                 val updatedProduct = existing?.copy(quantity = existing.quantity + 1) ?: product.copy(quantity = 1)
 
-                updated[product.uuid] = updatedProduct
+                updated[product.productUuid] = updatedProduct
                 state.copy(scannedProducts = updated)
             }
             updateTotalPrice()
@@ -53,8 +53,6 @@ class ShoppingViewModel @Inject constructor(
 
                 if (newQuantity > 0) {
                     updated[uuid] = product.copy(quantity = newQuantity)
-                } else {
-                    updated.remove(uuid)
                 }
             }
 

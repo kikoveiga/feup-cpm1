@@ -8,7 +8,7 @@ import java.math.BigDecimal
 @Table(name = "products")
 data class Product(
     @Id
-    val id: String,
+    val productUuid: String,
 
     @Column(nullable = false)
     val name: String,
@@ -19,7 +19,7 @@ data class Product(
 
 fun Product.toDto(quantity: Int): ProductDto {
     return ProductDto(
-        id = this.id,
+        productUuid = this.productUuid,
         name = this.name,
         price = this.price.toDouble(),
         quantity = quantity

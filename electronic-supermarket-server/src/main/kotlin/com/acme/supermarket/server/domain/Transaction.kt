@@ -12,7 +12,7 @@ import java.util.*
 @Table(name = "transactions")
 data class Transaction(
     @Id
-    val uuid: String = UUID.randomUUID().toString(),
+    val transactionUuid: String = UUID.randomUUID().toString(),
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -40,7 +40,7 @@ data class Transaction(
 
 fun Transaction.toDto(): TransactionDto {
     return TransactionDto(
-        id = this.uuid,
+        transactionUuid = this.transactionUuid,
         date = this.timestamp.toString(),
         price = this.totalValue.toDouble(),
         discount = this.accumulatedDiscountUsed.toDouble(),

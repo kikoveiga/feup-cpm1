@@ -8,17 +8,9 @@ import com.feup.client.data.model.dto.TransactionDto
 import com.feup.client.domain.model.Product
 import com.feup.client.domain.model.Transaction
 
-fun ProductDto.toDomain(): Product =
-    Product(
-        uuid = id,
-        name = name,
-        price = price,
-        quantity = quantity
-    )
-
 fun ProductDto.toEntity(transactionId: String): ProductEntity =
     ProductEntity(
-        id = id,
+        productUuid = productUuid,
         transactionId = transactionId,
         name = name,
         price = price,
@@ -27,19 +19,22 @@ fun ProductDto.toEntity(transactionId: String): ProductEntity =
 
 fun ProductEntity.toDomain(): Product =
     Product(
-        uuid = id,
+        productUuid = productUuid,
         name = name,
         price = price,
         quantity = quantity
     )
 
-fun TransactionDto.toEntity(): TransactionEntity =
-    TransactionEntity(
-        id = id,
+fun TransactionDto.toEntity(userUuid: String): TransactionEntity {
+    return TransactionEntity(
+        id = transactionUuid,
+        userUuid = userUuid,
         date = date,
         price = price,
         discount = discount,
+        voucherUsed = voucherUsed?.id
     )
+}
 
 fun TransactionWithProducts.toDomain(): Transaction =
     Transaction(

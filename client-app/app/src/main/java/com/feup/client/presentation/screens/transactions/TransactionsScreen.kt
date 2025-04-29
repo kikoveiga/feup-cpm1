@@ -180,7 +180,7 @@ fun TransactionsScreen(viewModel: TransactionsViewModel = hiltViewModel()) {
 
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-                
+
                 Button(onClick = { viewModel.updateTransactions() }) {
                     Text("Load transactions")
                 }

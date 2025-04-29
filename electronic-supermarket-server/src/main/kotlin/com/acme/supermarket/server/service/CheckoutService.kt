@@ -14,7 +14,9 @@ import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.Signature
 import java.security.spec.X509EncodedKeySpec
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Service
@@ -83,8 +85,10 @@ class CheckoutService(
         generateVouchersIfEligible(transaction.userUuid,newTotalSpent)
 
         userService.updateUserHistory(transaction.userUuid, newTotalSpent, accumulatedDiscount)
-        val requestDate = LocalDateTime.parse(transaction.date)
-
+        val requestDate = LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(transaction.date.toLong()),
+            ZoneId.systemDefault()
+        )
         val savedTransaction = transactionRepository.save(
             Transaction(
                 user = user!!,
@@ -196,7 +200,10 @@ class CheckoutService(
         if (totalQuantity > 10) throw BadRequestException("You can only purchase up to 10 items in total per transaction.")
         if (transaction.signature.isBlank()) throw BadRequestException("Signature cannot be empty.")
 
-        val requestDate = LocalDateTime.parse(transaction.date)
+        val requestDate = LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(transaction.date.toLong()),
+            ZoneId.systemDefault()
+        )
         val existingTransactions = transactionRepository.findByUserUserUuidAndTimestamp(transaction.userUuid, requestDate)
         if (existingTransactions != null) {
             if (existingTransactions.isNotEmpty()) {

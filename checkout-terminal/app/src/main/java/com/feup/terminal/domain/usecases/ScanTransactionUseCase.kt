@@ -6,27 +6,11 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class ScanTransactionUseCase @Inject constructor(
-    private val cryptoManager: CryptoManager // you won't need this if not decoding anymore
+    private val cryptoManager: CryptoManager
 ) {
     fun invoke(data: String): Result<Transaction> {
         return try {
-            // NO decode step here
-            val product = Json.decodeFromString<Transaction>(data)
-            Result.success(product)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-}
-
-
-/*
-class ScanTransactionUseCase @Inject constructor(
-    private val cryptoManager: CryptoManager
-) {
-    fun invoke(encryptedData: String): Result<Transaction> {
-        return try {
-            val decodedBytes = cryptoManager.decodeFromBase64(encryptedData)
+            val decodedBytes = cryptoManager.decodeFromBase64(data)
             val jsonString = String(decodedBytes)
 
             val product = Json.decodeFromString<Transaction>(jsonString)
@@ -37,4 +21,3 @@ class ScanTransactionUseCase @Inject constructor(
         }
     }
 }
- */

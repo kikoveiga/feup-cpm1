@@ -15,9 +15,12 @@ data class TransactionEntity(
     val voucherUsed: String? = null,
 )
 
-@Entity(tableName = "products")
+@Entity(
+    tableName = "products",
+    primaryKeys = ["transactionId", "productUuid"],
+)
 data class ProductEntity(
-    @PrimaryKey val productUuid: String,
+    val productUuid: String,
     val transactionId: String,
     val name: String,
     val price: Double,

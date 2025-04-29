@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -212,9 +213,9 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Column(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (state.value.scannedProducts.isNotEmpty()) {
                     Button(
@@ -222,15 +223,16 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                             showCheckoutDialog.value = true
                             viewModel.generateTransactionQrContent()
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.weight(1f) // <-- equal space
                     ) {
                         Text("Checkout")
                     }
-
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                Button(onClick = { launcher.launch(scanOptions) }) {
+                Button(
+                    onClick = { launcher.launch(scanOptions) },
+                    modifier = Modifier.weight(1f) // <-- equal space
+                ) {
                     Text("Scan Product")
                 }
             }

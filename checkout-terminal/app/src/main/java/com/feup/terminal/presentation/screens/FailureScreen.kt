@@ -18,7 +18,7 @@ fun FailureScreen(onTimeout: () -> Unit) {
     LaunchedEffect(Unit) {
         if (!timerStarted) {
             timerStarted = true
-            object : CountDownTimer(20_000, 1000) {
+            object : CountDownTimer(10_000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {}
                 override fun onFinish() {
                     onTimeout()

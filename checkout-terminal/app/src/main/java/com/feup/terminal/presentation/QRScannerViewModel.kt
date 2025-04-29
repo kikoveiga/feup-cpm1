@@ -3,6 +3,7 @@ package com.feup.terminal.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feup.terminal.data.model.dto.ProductDto
+import com.feup.terminal.data.model.dto.TransactionFromServerDto
 import com.feup.terminal.data.model.dto.TransactionToServerDto
 import com.feup.terminal.data.remote.TerminalApi
 import com.feup.terminal.domain.model.Transaction
@@ -17,7 +18,7 @@ class QRScannerViewModel @Inject constructor(
     private val terminalApi: TerminalApi
 ) : ViewModel() {
 
-    fun handleQrScan(base64Content: String, onResult: (Boolean) -> Unit) {
+    fun handleQrScan(base64Content: String, onResult: (TransactionFromServerDto?) -> Unit) {
         println("Scanned QR content: $base64Content") // <-- Print the raw QR scan
 
         scanTransactionUseCase.invoke(base64Content).onSuccess { transactionData ->
@@ -26,7 +27,7 @@ class QRScannerViewModel @Inject constructor(
             val transactionToServerDto = transactionToDto(transactionData)
 
             if (!validateTransaction(transactionToServerDto)) {
-                onResult(false)
+                onResult(null)
                 return@onSuccess
             }
 
@@ -34,21 +35,21 @@ class QRScannerViewModel @Inject constructor(
 
         }.onFailure {
             it.printStackTrace()
-            onResult(false)
+            onResult(null)
         }
     }
 
-
-    private fun sendTransactionToServer(dto: TransactionToServerDto, onResult: (Boolean) -> Unit) {
-        // Need to launch coroutine outside
+    private fun sendTransactionToServer(
+        dto: TransactionToServerDto,
+        onResult: (TransactionFromServerDto?) -> Unit
+    ) {
         viewModelScope.launch {
             try {
                 val response = terminalApi.sendTransactionToServer(dto)
-
-                onResult(response.isSuccess)
+                onResult(response)
             } catch (e: Exception) {
                 e.printStackTrace()
-                onResult(false)
+                onResult(null)
             }
         }
     }
@@ -56,9 +57,10 @@ class QRScannerViewModel @Inject constructor(
     private fun transactionToDto(transaction: Transaction): TransactionToServerDto {
         return TransactionToServerDto(
             userUuid = transaction.userUuid,
+            date = transaction.date,
             products = transaction.products.map { product ->
                 ProductDto(
-                    productUuid = product.uuid,
+                    productUuid = product.productUuid,
                     price = product.price,
                     name = product.name,
                     quantity = product.quantity
@@ -66,7 +68,7 @@ class QRScannerViewModel @Inject constructor(
             },
             voucherId = transaction.voucherUsed?.id,
             useAccumulatedDiscount = transaction.discount > 0.0,
-            signature = "AAAAAAAA" // <-- Here you need to get the signature! (is it stored somewhere in Transaction?)
+            signature = "AAAAAAAA" // TODO: Replace with real signature!
         )
     }
 

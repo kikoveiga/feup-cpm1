@@ -53,8 +53,6 @@ class ShoppingViewModel @Inject constructor(
 
                 if (newQuantity > 0) {
                     updated[uuid] = product.copy(quantity = newQuantity)
-                } else {
-                    updated.remove(uuid)
                 }
             }
 

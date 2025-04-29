@@ -38,7 +38,7 @@ class PastRecordsService(
 
     fun verifyAndFetchTransactions(request: PastRecordsRequestDto): List<TransactionDto> {
 
-        val user = userRepository.findByUserUuid(request.uuid)
+        val user = userRepository.findByUserUuid(request.userUuid)
             ?: throw BadRequestException("User not found")
         /*
         val storedNonce = nonceStore.getNonce(request.uuid)
@@ -65,7 +65,7 @@ class PastRecordsService(
 
     fun verifyAndFetchVouchers(request: PastRecordsRequestDto): List<VoucherDto> {
 
-        val user = userRepository.findByUserUuid(request.uuid)
+        val user = userRepository.findByUserUuid(request.userUuid)
             ?: throw BadRequestException("User not found")
         /*
         val storedNonce = nonceStore.getNonce(request.uuid)

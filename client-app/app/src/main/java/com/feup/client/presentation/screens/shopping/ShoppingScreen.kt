@@ -153,7 +153,7 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                 LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
                     items(
                         state.value.scannedProducts.values.toList(),
-                        key = { it.uuid }) { product ->
+                        key = { it.productUuid }) { product ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -181,7 +181,7 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     IconButton(onClick = {
                                         viewModel.updateQuantity(
-                                            product.uuid,
+                                            product.productUuid,
                                             -1
                                         )
                                     }) {
@@ -193,14 +193,14 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                                     )
                                     IconButton(onClick = {
                                         viewModel.updateQuantity(
-                                            product.uuid,
+                                            product.productUuid,
                                             1
                                         )
                                     }) {
                                         Icon(Icons.Default.Add, contentDescription = "Increase")
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    IconButton(onClick = { viewModel.removeProduct(product.uuid) }) {
+                                    IconButton(onClick = { viewModel.removeProduct(product.productUuid) }) {
                                         Icon(Icons.Outlined.Delete, contentDescription = "Remove")
                                     }
                                 }

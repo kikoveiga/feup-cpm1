@@ -13,8 +13,8 @@ import com.feup.client.data.local.database.entity.TransactionWithProducts
 interface TransactionWithProductsDao {
 
     @Transaction
-    @Query("SELECT * FROM transactions")
-    fun getAllTransactionsWithProducts(): List<TransactionWithProducts>
+    @Query("SELECT * FROM transactions WHERE userUuid = :userUuid")
+    fun getAllTransactionsWithProducts(userUuid: String): List<TransactionWithProducts>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransactions(transactions: List<TransactionEntity>)

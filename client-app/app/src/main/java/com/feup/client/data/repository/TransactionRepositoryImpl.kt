@@ -4,7 +4,7 @@ import com.feup.client.data.local.database.dao.TransactionWithProductsDao
 import com.feup.client.data.local.database.entity.TransactionWithProducts
 import com.feup.client.data.mapper.toDomain
 import com.feup.client.data.mapper.toEntity
-import com.feup.client.data.model.dto.UuidRequestDto
+import com.feup.client.data.model.dto.UserUuidRequestDto
 import com.feup.client.data.remote.SupermarketApi
 import com.feup.client.domain.model.Transaction
 import com.feup.client.domain.repository.TransactionRepository
@@ -18,19 +18,19 @@ class TransactionRepositoryImpl @Inject constructor(
     private val api: SupermarketApi
 ) : TransactionRepository {
 
-    override fun getLocalTransactions(): List<Transaction> {
-        return transactionWithProductsDao.getAllTransactionsWithProducts().map { it.toDomain() }
+    override fun getLocalTransactions(userUuid: String): List<Transaction> {
+        return transactionWithProductsDao.getAllTransactionsWithProducts(userUuid).map { it.toDomain() }
     }
 
     override suspend fun fetchAndStoreRemoteTransactions(userUuid: String): Result<Unit> {
         return try {
 
-            val remoteTransactions = api.getTransactions(UuidRequestDto(userUuid))
+            val remoteTransactions = api.getTransactions(UserUuidRequestDto(userUuid))
             transactionWithProductsDao.deleteAll()
-            val transactionsWithProducts = remoteTransactions.map { transaction ->
-                val entity = transaction.toEntity()
-                val products = transaction.products.map { it.toEntity(transaction.id) }
-                TransactionWithProducts(entity, products)
+            val transactionsWithProducts = remoteTransactions.map { transactionDto ->
+                val transactionEntity = transactionDto.toEntity(userUuid)
+                val productEntities = transactionDto.products.map { it.toEntity(transactionDto.transactionUuid) }
+                TransactionWithProducts(transactionEntity, productEntities)
             }
 
             transactionsWithProducts.forEach { (transactionEntity, products) ->

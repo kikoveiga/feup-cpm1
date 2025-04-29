@@ -56,9 +56,10 @@ class QRScannerViewModel @Inject constructor(
     private fun transactionToDto(transaction: Transaction): TransactionToServerDto {
         return TransactionToServerDto(
             userUuid = transaction.userUuid,
+            date = transaction.date,
             products = transaction.products.map { product ->
                 ProductDto(
-                    productUuid = product.uuid,
+                    productUuid = product.productUuid,
                     price = product.price,
                     name = product.name,
                     quantity = product.quantity

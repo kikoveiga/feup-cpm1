@@ -26,7 +26,7 @@ class TransactionRepositoryImpl @Inject constructor(
         return try {
 
             val remoteTransactions = api.getTransactions(UserUuidRequestDto(userUuid))
-            transactionWithProductsDao.deleteAll()
+            transactionWithProductsDao.deleteAll(userUuid)
             val transactionsWithProducts = remoteTransactions.map { transactionDto ->
                 val transactionEntity = transactionDto.toEntity(userUuid)
                 val productEntities = transactionDto.products.map { it.toEntity(transactionDto.transactionUuid) }

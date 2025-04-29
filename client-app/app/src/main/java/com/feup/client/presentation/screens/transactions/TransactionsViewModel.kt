@@ -22,7 +22,6 @@ class TransactionsViewModel @Inject constructor(
     val uiState: StateFlow<TransactionsUiState> = _uiState
 
     init {
-
         viewModelScope.launch(Dispatchers.IO) {
             val userUuid = userDataStore.getLoggedInUser().uuid ?: return@launch
             val localTransactions = transactionRepository.getLocalTransactions(userUuid)

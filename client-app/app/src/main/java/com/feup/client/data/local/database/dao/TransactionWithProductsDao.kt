@@ -31,6 +31,6 @@ interface TransactionWithProductsDao {
         insertProducts(products)
     }
 
-    @Query("DELETE FROM transactions")
-    suspend fun deleteAll()
+    @Query("DELETE FROM transactions WHERE userUuid = :userUuid")
+    suspend fun deleteAll(userUuid: String)
 }

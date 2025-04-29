@@ -14,6 +14,7 @@ import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.Signature
 import java.security.spec.X509EncodedKeySpec
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
@@ -82,6 +83,7 @@ class CheckoutService(
         generateVouchersIfEligible(transaction.userUuid,newTotalSpent)
 
         userService.updateUserHistory(transaction.userUuid, newTotalSpent, accumulatedDiscount)
+        val requestDate = LocalDateTime.parse(transaction.date)
 
         val savedTransaction = transactionRepository.save(
             Transaction(
@@ -89,7 +91,8 @@ class CheckoutService(
                 totalValue = totalValue,
                 accumulatedDiscountUsed = if (transaction.useAccumulatedDiscount) accumulatedDiscountUsed else BigDecimal.ZERO,
                 voucherDiscountGenerated = voucherDiscount,
-                voucherUsed = voucher
+                voucherUsed = voucher,
+                timestamp = requestDate
             )
         )
 
@@ -191,8 +194,18 @@ class CheckoutService(
         }
         val totalQuantity = transaction.products.sumOf { it.quantity }
         if (totalQuantity > 10) throw BadRequestException("You can only purchase up to 10 items in total per transaction.")
-
         if (transaction.signature.isBlank()) throw BadRequestException("Signature cannot be empty.")
+
+        val requestDate = LocalDateTime.parse(transaction.date)
+        val existingTransactions = transactionRepository.findByUserUserUuidAndTimestamp(transaction.userUuid, requestDate)
+        if (existingTransactions != null) {
+            if (existingTransactions.isNotEmpty()) {
+                throw BadRequestException("This transaction has already been processed.")
+            }
+        }
+
+
+
     }
 
 }

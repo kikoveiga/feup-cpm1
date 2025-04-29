@@ -189,6 +189,9 @@ class CheckoutService(
                 throw BadRequestException("Item at index $index has an invalid price. Must be greater than 0.")
             }
         }
+        val totalQuantity = transaction.products.sumOf { it.quantity }
+        if (totalQuantity > 10) throw BadRequestException("You can only purchase up to 10 items in total per transaction.")
+
         if (transaction.signature.isBlank()) throw BadRequestException("Signature cannot be empty.")
     }
 

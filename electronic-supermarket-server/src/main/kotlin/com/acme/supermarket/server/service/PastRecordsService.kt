@@ -42,11 +42,11 @@ class PastRecordsService(
         val user = userRepository.findByUserUuid(request.userUuid)
             ?: throw BadRequestException("User not found")
 
-        val messageToDecode = request.userUuid + request.signature;
+        val messageToVerify = "userUuid:${request.userUuid}&nonce:${request.nonce}"
 
         val isValid = cryptoService.verifyEcSignature(
             publicKeyBase64 = user.ecPublicKey,
-            message = messageToDecode,
+            message = messageToVerify,
             signatureBase64 = request.signature
         )
 
@@ -65,11 +65,11 @@ class PastRecordsService(
         val user = userRepository.findByUserUuid(request.userUuid)
             ?: throw BadRequestException("User not found")
 
-        val messageToDecode = request.userUuid + request.signature;
+        val messageToVerify = "userUuid:${request.userUuid}&nonce:${request.nonce}"
 
         val isValid = cryptoService.verifyEcSignature(
             publicKeyBase64 = user.ecPublicKey,
-            message = messageToDecode,
+            message = messageToVerify,
             signatureBase64 = request.signature
         )
 

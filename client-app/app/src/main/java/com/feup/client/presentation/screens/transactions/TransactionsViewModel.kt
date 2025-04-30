@@ -3,19 +3,18 @@ package com.feup.client.presentation.screens.transactions
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feup.client.domain.local.UserDataStore
-import com.feup.client.domain.repository.TransactionRepository
+import com.feup.client.domain.usecases.FetchTransactionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
-    private val transactionRepository: TransactionRepository,
+    private val fetchTransactionsUseCase: FetchTransactionsUseCase,
     private val userDataStore: UserDataStore
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TransactionsUiState())
@@ -24,7 +23,7 @@ class TransactionsViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             val userUuid = userDataStore.getLoggedInUser().uuid ?: return@launch
-            val localTransactions = transactionRepository.getLocalTransactions(userUuid)
+            val localTransactions = fetchTransactionsUseCase.local(userUuid)
             _uiState.update {
                 it.copy(transactions = localTransactions)
             }
@@ -39,27 +38,22 @@ class TransactionsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val userUuid = userDataStore.getLoggedInUser().uuid
             if (userUuid != null) {
-                val result = transactionRepository.fetchAndStoreRemoteTransactions(userUuid)
+                val result = fetchTransactionsUseCase.remote(userUuid)
 
-                if (result.isSuccess) {
-                    val updatedTransactions = transactionRepository.getLocalTransactions(userUuid)
-                    withContext(Dispatchers.Main) {
+                result.fold(
+
+                    onSuccess = { updatedTransactions ->
                         _uiState.update {
-                            it.copy(
-                                transactions = updatedTransactions,
-                                error = null
-                            )
+                            it.copy(transactions = updatedTransactions, error = null)
+                        }
+                    },
+
+                    onFailure = { exception ->
+                        _uiState.update {
+                            it.copy(error = exception.message)
                         }
                     }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        _uiState.update {
-                            it.copy(
-                                error = result.exceptionOrNull()?.message
-                            )
-                        }
-                    }
-                }
+                )
             }
         }
     }

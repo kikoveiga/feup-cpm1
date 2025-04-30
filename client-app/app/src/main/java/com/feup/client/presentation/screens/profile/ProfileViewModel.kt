@@ -78,6 +78,8 @@ class ProfileViewModel @Inject constructor(
     fun deleteAccount() {
         viewModelScope.launch {
             try {
+                val userNickname = userDataStore.getLoggedInUser().nickname
+                cryptoManager.deleteKeys(userNickname = userNickname)
                 userDataStore.deleteUser()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value?.copy(

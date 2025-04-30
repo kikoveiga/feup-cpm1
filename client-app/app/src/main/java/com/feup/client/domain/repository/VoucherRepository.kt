@@ -4,5 +4,5 @@ import com.feup.client.domain.model.Voucher
 
 interface VoucherRepository {
     fun getLocalVouchers(userUuid: String): List<Voucher>
-    suspend fun fetchAndStoreVouchers(userUuid: String): Result<Unit>
+    suspend fun fetchAndStoreVouchers(userUuid: String, nonce: String, signature: String): Result<Unit>
 }

@@ -1,8 +1,8 @@
 package com.feup.client.data.repository
 
 import com.feup.client.data.local.database.dao.VoucherDao
+import com.feup.client.data.local.database.entity.VoucherEntity
 import com.feup.client.data.mapper.toDomain
-import com.feup.client.data.mapper.toEntity
 import com.feup.client.data.remote.SupermarketApi
 import com.feup.client.domain.model.Voucher
 import com.feup.client.domain.repository.VoucherRepository
@@ -19,11 +19,15 @@ class VoucherRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchAndStoreVouchers(userUuid: String): Result<Unit> {
+    override suspend fun fetchAndStoreVouchers(userUuid: String, nonce: String, signature: String): Result<Unit> {
         return runCatching {
-            val remoteVouchers = api.getVouchers(userUuid)
+            val remoteVouchers = api.getVouchers(userUuid = userUuid, nonce = nonce, signature = signature)
             val localVouchers = remoteVouchers.map {
-                it.toEntity(userUuid)
+                VoucherEntity(
+                    voucherUuid = it,
+                    userUuid = userUuid,
+                    isUsed = false
+                )
             }
             voucherDao.insertVouchers(localVouchers)
         }

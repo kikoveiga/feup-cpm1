@@ -22,8 +22,9 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 class CryptoManagerImpl @Inject constructor() : CryptoManager {
 
     override val androidKeyStore = "AndroidKeyStore"
-    override val rsaAlias = "rsa_key"
-    override val ecAlias = "ec_key"
+
+    private fun rsaAlias(userNickname: String) = "rsa_key_$userNickname"
+    private fun ecAlias(userNickname: String) = "ec_key_$userNickname"
 
     @OptIn(ExperimentalEncodingApi::class)
     override fun encodeToBase64(data: ByteArray): String {
@@ -41,13 +42,13 @@ class CryptoManagerImpl @Inject constructor() : CryptoManager {
         return factory.generateSecret(spec).encoded
     }
 
-    override fun generateRSAKeyPair(): KeyPair {
+    override fun generateRSAKeyPair(userNickname: String): KeyPair {
         val keyPairGenerator = KeyPairGenerator.getInstance(
             KeyProperties.KEY_ALGORITHM_RSA, androidKeyStore
         )
 
         val spec = KeyGenParameterSpec.Builder(
-            rsaAlias,
+            rsaAlias(userNickname),
             KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT or KeyProperties.PURPOSE_SIGN
         )
             .setKeySize(512)
@@ -59,13 +60,13 @@ class CryptoManagerImpl @Inject constructor() : CryptoManager {
         return keyPairGenerator.generateKeyPair()
     }
 
-    override fun generateECKeyPair(): KeyPair {
+    override fun generateECKeyPair(userNickname: String): KeyPair {
         val keyPairGenerator = KeyPairGenerator.getInstance(
             KeyProperties.KEY_ALGORITHM_EC, androidKeyStore
         )
 
         val spec = KeyGenParameterSpec.Builder(
-            ecAlias,
+            ecAlias(userNickname),
             KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY
         )
             .setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
@@ -86,8 +87,9 @@ class CryptoManagerImpl @Inject constructor() : CryptoManager {
         return KeyFactory.getInstance(algorithm).generatePrivate(PKCS8EncodedKeySpec(bytes))
     }
 
-    override fun getPrivateKey(alias: String): PrivateKey? {
+    override fun getPrivateKey(userNickname: String, isRsa: Boolean): PrivateKey? {
         val keyStore = KeyStore.getInstance(androidKeyStore).apply { load(null) }
+        val alias = if (isRsa) rsaAlias(userNickname) else ecAlias(userNickname)
         return keyStore.getKey(alias, null) as? PrivateKey
     }
 
@@ -105,5 +107,30 @@ class CryptoManagerImpl @Inject constructor() : CryptoManager {
         cipher.init(Cipher.DECRYPT_MODE, publicKey)
         val encryptedBytes = Base64.decode(encryptedData)
         return cipher.doFinal(encryptedBytes)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    override fun generateSignature(userNickname: String, message: ByteArray): String {
+        val privateKey = getPrivateKey(userNickname, isRsa = false)
+            ?: throw IllegalStateException("User Private key not found in keystore")
+
+        val signature = java.security.Signature.getInstance("SHA256withECDSA")
+        signature.initSign(privateKey)
+        signature.update(message)
+
+        val signedBytes = signature.sign()
+        return Base64.Default.encode(signedBytes)
+    }
+
+    override fun deleteKeys(userNickname: String) {
+        val keyStore = KeyStore.getInstance(androidKeyStore).apply { load(null) }
+
+        if (keyStore.containsAlias(rsaAlias(userNickname))) {
+            keyStore.deleteEntry(rsaAlias(userNickname))
+        }
+
+        if (keyStore.containsAlias(ecAlias(userNickname))) {
+            keyStore.deleteEntry(ecAlias(userNickname))
+        }
     }
 }

@@ -28,8 +28,8 @@ class AuthUserUseCase @Inject constructor(
                 name = name,
                 nickname = nickname,
                 passwordHash = cryptoManager.hashPassword(password),
-                rsaKeyPair = cryptoManager.generateRSAKeyPair(),
-                ecKeyPair = cryptoManager.generateECKeyPair(),
+                rsaKeyPair = cryptoManager.generateRSAKeyPair(nickname),
+                ecKeyPair = cryptoManager.generateECKeyPair(nickname),
                 paymentCard = paymentCard
             )
 

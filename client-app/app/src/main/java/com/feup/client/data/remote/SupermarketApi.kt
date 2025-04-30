@@ -3,8 +3,6 @@ package com.feup.client.data.remote
 import com.feup.client.data.model.dto.RegisterUserRequestDto
 import com.feup.client.data.model.dto.RegisterUserResponseDto
 import com.feup.client.data.model.dto.TransactionDto
-import com.feup.client.data.model.dto.UserUuidRequestDto
-import com.feup.client.data.model.dto.VoucherDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -20,10 +18,14 @@ interface SupermarketApi {
     @GET("/api/vouchers")
     suspend fun getVouchers(
         @Query("userUuid") userUuid: String,
-    ): List<VoucherDto>
+        @Query("nonce") nonce: String,
+        @Query("signature") signature: String,
+    ): List<String>
 
-    @POST("/api/transactions")
+    @GET("/api/transactions")
     suspend fun getTransactions(
-        @Body requestDto: UserUuidRequestDto
+        @Query("userUuid") userUuid: String,
+        @Query("nonce") nonce: String,
+        @Query("signature") signature: String,
     ): List<TransactionDto>
 }

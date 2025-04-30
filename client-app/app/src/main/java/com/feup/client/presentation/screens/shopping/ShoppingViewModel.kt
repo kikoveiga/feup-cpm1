@@ -96,8 +96,9 @@ class ShoppingViewModel @Inject constructor(
 
     fun fetchVouchers() {
         viewModelScope.launch {
+            val userNickname = userDataStore.getLoggedInUser().nickname
             val userUuid = userDataStore.getLoggedInUser().uuid ?: throw IllegalStateException("User is not logged in")
-            fetchVouchersUseCase(userUuid).onSuccess { vouchers ->
+            fetchVouchersUseCase(userNickname, userUuid).onSuccess { vouchers ->
                 _uiState.update { it.copy(vouchers = vouchers) }
             }.onFailure {
                 _uiState.update { it.copy(error = "Failed to fetch vouchers") }

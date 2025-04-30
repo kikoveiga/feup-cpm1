@@ -3,7 +3,6 @@ package com.feup.client.data.repository
 import com.feup.client.data.local.database.dao.TransactionWithProductsDao
 import com.feup.client.data.mapper.toDomain
 import com.feup.client.data.mapper.toEntity
-import com.feup.client.data.model.dto.UserUuidRequestDto
 import com.feup.client.data.remote.SupermarketApi
 import com.feup.client.domain.model.Transaction
 import com.feup.client.domain.repository.TransactionRepository
@@ -21,10 +20,10 @@ class TransactionRepositoryImpl @Inject constructor(
         return transactionWithProductsDao.getAllTransactionsWithProducts(userUuid).map { it.toDomain() }
     }
 
-    override suspend fun fetchAndStoreRemoteTransactions(userUuid: String): Result<Unit> {
+    override suspend fun fetchAndStoreRemoteTransactions(userUuid: String, nonce: String, signature: String): Result<Unit> {
         return try {
 
-            val remoteTransactions = api.getTransactions(UserUuidRequestDto(userUuid))
+            val remoteTransactions = api.getTransactions(userUuid = userUuid, nonce = nonce, signature = signature)
             transactionWithProductsDao.deleteAll(userUuid)
 
             remoteTransactions.forEach { transactionDto ->

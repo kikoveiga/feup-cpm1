@@ -39,11 +39,11 @@ fun SerializableUser.toUser(cryptoManager: CryptoManager): User =
         passwordHash = cryptoManager.decodeFromBase64(passwordHash),
         rsaKeyPair = KeyPair(
             cryptoManager.decodePublicKeyFromBase64(rsaPublicKey, "RSA"),
-            cryptoManager.getPrivateKey(cryptoManager.rsaAlias)
+            cryptoManager.getPrivateKey(userNickname = nickname, isRsa = true)
         ),
         ecKeyPair = KeyPair(
             cryptoManager.decodePublicKeyFromBase64(ecPublicKey, "EC"),
-            cryptoManager.getPrivateKey(cryptoManager.ecAlias)
+            cryptoManager.getPrivateKey(userNickname = nickname, isRsa = false)
         ),
         paymentCard = PaymentCard(enumValues<PaymentCardType>().firstOrNull { it.name == paymentCardType} ?: PaymentCardType.DEBIT, paymentCardNumber, paymentCardExpirationDate),
         uuid = uuid,

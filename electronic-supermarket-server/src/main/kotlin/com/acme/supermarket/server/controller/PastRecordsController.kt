@@ -23,9 +23,14 @@ class PastRecordsController(
         return ResponseEntity.ok(response)
     }
 
-    @PostMapping("/vouchers")
-    fun verifyNonceAndGetVouchers(@RequestBody authRequest: PastRecordsRequestDto): ResponseEntity<List<VoucherDto>> {
-        val response = pastRecordsService.verifyAndFetchVouchers(authRequest)
+    @GetMapping("/vouchers")
+    fun verifyNonceAndGetVouchers(
+        @RequestParam userUuid: String,
+        @RequestParam nonce: String,
+        @RequestParam signature: String
+    ): ResponseEntity<List<String>> {
+        val request = PastRecordsRequestDto(userUuid, nonce, signature)
+        val response = pastRecordsService.verifyAndFetchVouchers(request)
         return ResponseEntity.ok(response)
     }
 

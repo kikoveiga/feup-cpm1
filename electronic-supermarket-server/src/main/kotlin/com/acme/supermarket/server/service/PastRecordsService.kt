@@ -60,44 +60,27 @@ class PastRecordsService(
     }
 
 
-    fun verifyAndFetchVouchers(request: PastRecordsRequestDto): List<VoucherDto> {
+    fun verifyAndFetchVouchers(request: PastRecordsRequestDto): List<String> {
 
         val user = userRepository.findByUserUuid(request.userUuid)
             ?: throw BadRequestException("User not found")
-        /*
-        val storedNonce = nonceStore.getNonce(request.uuid)
-            ?: throw BadRequestException("No nonce stored")
 
-        val publicKey = getPublicKeyFromString(user.rsaPublicKey)
+        val messageToDecode = request.userUuid + request.signature;
 
-
-        val isValid = verifySignature(
-            storedNonce.toByteArray(),
-            Base64.getDecoder().decode(request.signedNonce),
-            publicKey
+        val isValid = cryptoService.verifyEcSignature(
+            publicKeyBase64 = user.ecPublicKey,
+            message = messageToDecode,
+            signatureBase64 = request.signature
         )
 
         if (!isValid) {
-            throw BadRequestException("Signature verification failed")
+            throw BadRequestException("Invalid signature.")
         }
-*/
+
         val vouchers = voucherRepository.findByUserAndUsedFalse(user)
 
-        return vouchers.map { it.toDto() }
+        return vouchers.map { it.uuid }
     }
 
-    private fun verifySignature(data: ByteArray, signatureBytes: ByteArray, publicKey: PublicKey): Boolean {
-        val signature = Signature.getInstance("SHA256withRSA")
-        signature.initVerify(publicKey)
-        signature.update(data)
-        return signature.verify(signatureBytes)
-    }
-
-    private fun getPublicKeyFromString(key: String): PublicKey {
-        val keyBytes = Base64.getDecoder().decode(key)
-        val keySpec = X509EncodedKeySpec(keyBytes)
-        val keyFactory = KeyFactory.getInstance("RSA")
-        return keyFactory.generatePublic(keySpec)
-    }
 }
 

@@ -1,7 +1,6 @@
 package com.feup.client.data.repository
 
 import com.feup.client.data.local.database.dao.TransactionWithProductsDao
-import com.feup.client.data.local.database.entity.TransactionWithProducts
 import com.feup.client.data.mapper.toDomain
 import com.feup.client.data.mapper.toEntity
 import com.feup.client.data.model.dto.UserUuidRequestDto
@@ -27,14 +26,15 @@ class TransactionRepositoryImpl @Inject constructor(
 
             val remoteTransactions = api.getTransactions(UserUuidRequestDto(userUuid))
             transactionWithProductsDao.deleteAll(userUuid)
-            val transactionsWithProducts = remoteTransactions.map { transactionDto ->
+
+            remoteTransactions.forEach { transactionDto ->
                 val transactionEntity = transactionDto.toEntity(userUuid)
                 val productEntities = transactionDto.products.map { it.toEntity(transactionDto.transactionUuid) }
-                TransactionWithProducts(transactionEntity, productEntities)
-            }
 
-            transactionsWithProducts.forEach { (transactionEntity, products) ->
-                transactionWithProductsDao.insertTransactionBatch(transactionEntity, products)
+                transactionWithProductsDao.insertTransactionBatch(
+                    transactionEntity,
+                    productEntities
+                )
             }
 
             Result.success(Unit)

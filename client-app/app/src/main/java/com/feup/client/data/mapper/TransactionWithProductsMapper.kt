@@ -32,7 +32,7 @@ fun TransactionDto.toEntity(userUuid: String): TransactionEntity {
         date = date,
         price = price,
         discount = discount,
-        voucherUsed = voucherUsed?.id
+        voucherUuidUsed = voucherUuidUsed
     )
 }
 

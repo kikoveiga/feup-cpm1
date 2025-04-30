@@ -6,5 +6,5 @@ data class TransactionDto(
     val products: List<ProductDto>,
     val price: Double,
     val discount: Double,
-    val voucherUsed: VoucherDto? = null
+    val voucherUuidUsed: String? = null
 )

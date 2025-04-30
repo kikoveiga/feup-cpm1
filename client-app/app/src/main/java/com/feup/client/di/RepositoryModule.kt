@@ -2,8 +2,10 @@ package com.feup.client.di
 
 import com.feup.client.data.repository.TransactionRepositoryImpl
 import com.feup.client.data.repository.UserRepositoryImpl
+import com.feup.client.data.repository.VoucherRepositoryImpl
 import com.feup.client.domain.repository.TransactionRepository
 import com.feup.client.domain.repository.UserRepository
+import com.feup.client.domain.repository.VoucherRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,4 +27,10 @@ abstract class RepositoryModule {
     abstract fun bindTransactionRepository(
         transactionRepositoryImpl: TransactionRepositoryImpl
     ): TransactionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindVoucherRepository(
+        voucherRepositoryImpl: VoucherRepositoryImpl
+    ): VoucherRepository
 }

@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Voucher(
-    val id: String,
+    val voucherUuid: String,
+    val userUuid: String,
     val isUsed: Boolean
 )

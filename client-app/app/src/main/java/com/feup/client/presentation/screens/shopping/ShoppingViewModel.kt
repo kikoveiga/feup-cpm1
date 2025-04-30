@@ -3,6 +3,7 @@ package com.feup.client.presentation.screens.shopping
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feup.client.domain.local.UserDataStore
+import com.feup.client.domain.usecases.FetchVouchersUseCase
 import com.feup.client.domain.usecases.GenerateTransactionQrUseCase
 import com.feup.client.domain.usecases.ScanProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +17,7 @@ import javax.inject.Inject
 class ShoppingViewModel @Inject constructor(
     private val scanProductUseCase: ScanProductUseCase,
     private val generateTransactionQrUseCase: GenerateTransactionQrUseCase,
+    private val fetchVouchersUseCase: FetchVouchersUseCase,
     private val userDataStore: UserDataStore
 ) : ViewModel() {
 
@@ -89,6 +91,17 @@ class ShoppingViewModel @Inject constructor(
             val qrContent = generateTransactionQrUseCase.toQrContent(transaction)
 
             _uiState.update { it.copy(qrContent = qrContent) }
+        }
+    }
+
+    fun fetchVouchers() {
+        viewModelScope.launch {
+            val userUuid = userDataStore.getLoggedInUser().uuid ?: throw IllegalStateException("User is not logged in")
+            fetchVouchersUseCase(userUuid).onSuccess { vouchers ->
+                _uiState.update { it.copy(vouchers = vouchers) }
+            }.onFailure {
+                _uiState.update { it.copy(error = "Failed to fetch vouchers") }
+            }
         }
     }
 }

@@ -19,7 +19,7 @@ interface SupermarketApi {
 
     @GET("/api/vouchers")
     suspend fun getVouchers(
-        @Query("uuid") uuid: String,
+        @Query("userUuid") userUuid: String,
     ): List<VoucherDto>
 
     @POST("/api/transactions")

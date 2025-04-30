@@ -26,4 +26,7 @@ object DatabaseModule {
 
     @Provides
     fun provideTransactionDao(database: AppDatabase) = database.transactionDao()
+
+    @Provides
+    fun provideVoucherDao(database: AppDatabase) = database.voucherDao()
 }

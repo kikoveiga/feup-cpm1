@@ -6,7 +6,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,16 +35,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.set
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.launch
-import androidx.core.graphics.createBitmap
-import androidx.core.graphics.set
 
 @Composable
 fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
@@ -141,6 +141,20 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            Column {
+                Button(onClick = { viewModel.fetchVouchers() }) {
+                    Text("Fetch Vouchers")
+                }
+
+                state.value.vouchers.forEach {
+                    Text("Voucher ID: ${it.voucherUuid}, Used: ${it.isUsed}")
+                }
+
+                state.value.error?.let {
+                    Text("Error: $it", color = Color.Red)
+                }
+            }
 
             if (state.value.scannedProducts.isEmpty()) {
                 Box(

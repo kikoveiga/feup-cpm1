@@ -152,7 +152,7 @@ fun TransactionsScreen(viewModel: TransactionsViewModel = hiltViewModel()) {
 
                                         transaction.voucherUsed?.let { voucher ->
                                             Text(
-                                                text = "Voucher used: ${voucher.id}",
+                                                text = "Voucher used: ${voucher.voucherUuid}",
                                                 style = MaterialTheme.typography.bodySmall
                                             )
                                         }

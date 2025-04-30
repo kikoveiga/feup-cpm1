@@ -20,7 +20,8 @@ class PastRecordsService(
     private val nonceStore: NonceStore,
     private val userRepository: UserRepository,
     private val transactionRepository: TransactionRepository,
-    private val voucherRepository: VoucherRepository
+    private val voucherRepository: VoucherRepository,
+    private val cryptoService: CryptoService
 ) {
 
     fun generateAndStoreNonce(userUuid: String): String {
@@ -40,23 +41,19 @@ class PastRecordsService(
 
         val user = userRepository.findByUserUuid(request.userUuid)
             ?: throw BadRequestException("User not found")
-        /*
-        val storedNonce = nonceStore.getNonce(request.uuid)
-            ?: throw BadRequestException("No nonce stored")
 
-        val publicKey = getPublicKeyFromString(user.rsaPublicKey)
+        val messageToDecode = request.userUuid + request.signature;
 
-
-        val isValid = verifySignature(
-            storedNonce.toByteArray(),
-            Base64.getDecoder().decode(request.signedNonce),
-            publicKey
+        val isValid = cryptoService.verifyEcSignature(
+            publicKeyBase64 = user.ecPublicKey,
+            message = messageToDecode,
+            signatureBase64 = request.signature
         )
 
         if (!isValid) {
-            throw BadRequestException("Signature verification failed")
+            throw BadRequestException("Invalid signature.")
         }
-*/
+
         val transactions = transactionRepository.findByUserUserUuid(user.userUuid)
 
         return transactions.map { it.toDto() }

@@ -4,6 +4,7 @@ import com.acme.supermarket.server.dto.*
 import com.acme.supermarket.server.service.PastRecordsService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import kotlin.math.sign
 
 @RestController
 @RequestMapping("/api")
@@ -11,15 +12,14 @@ class PastRecordsController(
     private val pastRecordsService: PastRecordsService
 ) {
 
-    @GetMapping("/nonce")
-    fun getNonce(@RequestParam uuid: String): ResponseEntity<NonceResponseDto> {
-        val nonce = pastRecordsService.generateAndStoreNonce(uuid)
-        return ResponseEntity.ok(NonceResponseDto(nonce))
-    }
-
-    @PostMapping("/transactions")
-    fun verifyNonceAndGetTransactions(@RequestBody authRequest: PastRecordsRequestDto): ResponseEntity<List<TransactionDto>> {
-        val response = pastRecordsService.verifyAndFetchTransactions(authRequest)
+    @GetMapping("/transactions")
+    fun verifyNonceAndGetTransactions(
+        @RequestParam userUuid: String,
+        @RequestParam nonce: String,
+        @RequestParam signature: String
+    ): ResponseEntity<List<TransactionDto>> {
+        val request = PastRecordsRequestDto(userUuid, nonce, signature)
+        val response = pastRecordsService.verifyAndFetchTransactions(request)
         return ResponseEntity.ok(response)
     }
 

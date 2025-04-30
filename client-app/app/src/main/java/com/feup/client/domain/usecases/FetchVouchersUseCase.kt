@@ -1,7 +1,6 @@
 package com.feup.client.domain.usecases
 
 import com.feup.client.domain.crypto.CryptoManager
-import com.feup.client.domain.model.User
 import com.feup.client.domain.model.Voucher
 import com.feup.client.domain.repository.VoucherRepository
 import java.util.UUID
@@ -13,7 +12,7 @@ class FetchVouchersUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(userNickname: String, userUuid: String): Result<List<Voucher>> {
         val nonce = UUID.randomUUID().toString().replace("-", "")
-        val message = "userUuid:$userNickname&nonce:$nonce"
+        val message = "userUuid:$userUuid&nonce:$nonce"
         val signature = cryptoManager.generateSignature(userNickname = userNickname, message.toByteArray())
 
         return runCatching {

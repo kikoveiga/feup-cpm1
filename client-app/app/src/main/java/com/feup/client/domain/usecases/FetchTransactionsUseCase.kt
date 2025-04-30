@@ -14,10 +14,10 @@ class FetchTransactionsUseCase @Inject constructor(
         return transactionRepository.getLocalTransactions(userUuid)
     }
 
-    suspend fun remote(userUuid: String): Result<List<Transaction>> {
+    suspend fun remote(userNickname: String, userUuid: String): Result<List<Transaction>> {
         val nonce = UUID.randomUUID().toString().replace("-", "")
         val message = "userUuid:$userUuid&nonce:$nonce"
-        val signature = cryptoManager.generateSignature(userUuid, message.toByteArray())
+        val signature = cryptoManager.generateSignature(userNickname = userNickname, message.toByteArray())
 
         return transactionRepository
             .fetchAndStoreRemoteTransactions(userUuid = userUuid, nonce = nonce, signature = signature)

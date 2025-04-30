@@ -38,7 +38,8 @@ class TransactionsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val userUuid = userDataStore.getLoggedInUser().uuid
             if (userUuid != null) {
-                val result = fetchTransactionsUseCase.remote(userUuid)
+                val userNickname = userDataStore.getLoggedInUser().nickname
+                val result = fetchTransactionsUseCase.remote(userNickname = userNickname, userUuid = userUuid)
 
                 result.fold(
 

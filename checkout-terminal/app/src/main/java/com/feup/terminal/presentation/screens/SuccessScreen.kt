@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.feup.terminal.data.model.dto.TransactionFromServerDto
+import com.feup.terminal.data.dto.TransactionFromServerDto
 
 @Composable
 fun SuccessScreen(

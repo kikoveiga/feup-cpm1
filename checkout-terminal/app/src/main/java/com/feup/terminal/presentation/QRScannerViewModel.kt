@@ -2,9 +2,9 @@ package com.feup.terminal.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feup.terminal.data.model.dto.ProductDto
-import com.feup.terminal.data.model.dto.TransactionFromServerDto
-import com.feup.terminal.data.model.dto.TransactionToServerDto
+import com.feup.terminal.data.dto.ProductDto
+import com.feup.terminal.data.dto.TransactionFromServerDto
+import com.feup.terminal.data.dto.TransactionToServerDto
 import com.feup.terminal.data.remote.TerminalApi
 import com.feup.terminal.domain.model.Transaction
 import com.feup.terminal.domain.usecases.ScanTransactionUseCase

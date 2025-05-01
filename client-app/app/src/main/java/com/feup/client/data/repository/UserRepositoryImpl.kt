@@ -1,13 +1,10 @@
 package com.feup.client.data.repository
 
-import com.feup.client.data.mapper.toDomain
+import com.feup.client.data.dto.ErrorResponse
 import com.feup.client.data.mapper.toRegisterUserRequestDto
-import com.feup.client.data.model.dto.ErrorResponse
 import com.feup.client.data.remote.SupermarketApi
 import com.feup.client.domain.crypto.CryptoManager
-import com.feup.client.domain.model.Transaction
 import com.feup.client.domain.model.User
-import com.feup.client.domain.model.Voucher
 import com.feup.client.domain.repository.UserRepository
 import kotlinx.serialization.json.Json
 import retrofit2.HttpException

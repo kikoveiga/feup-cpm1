@@ -1,7 +1,7 @@
 package com.feup.terminal.data.remote
 
-import com.feup.terminal.data.model.dto.TransactionFromServerDto
-import com.feup.terminal.data.model.dto.TransactionToServerDto
+import com.feup.terminal.data.dto.TransactionFromServerDto
+import com.feup.terminal.data.dto.TransactionToServerDto
 import retrofit2.http.Body
 import retrofit2.http.POST
 

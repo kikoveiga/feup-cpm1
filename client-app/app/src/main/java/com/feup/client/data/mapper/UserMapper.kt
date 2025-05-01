@@ -1,8 +1,8 @@
 package com.feup.client.data.mapper
 
 import com.feup.client.data.local.datastore.SerializableUser
-import com.feup.client.data.model.dto.PaymentCardDto
-import com.feup.client.data.model.dto.RegisterUserRequestDto
+import com.feup.client.data.dto.PaymentCardDto
+import com.feup.client.data.dto.RegisterUserRequestDto
 import com.feup.client.domain.crypto.CryptoManager
 import com.feup.client.domain.model.PaymentCard
 import com.feup.client.domain.model.PaymentCardType

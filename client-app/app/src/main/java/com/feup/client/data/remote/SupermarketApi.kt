@@ -1,8 +1,8 @@
 package com.feup.client.data.remote
 
-import com.feup.client.data.model.dto.RegisterUserRequestDto
-import com.feup.client.data.model.dto.RegisterUserResponseDto
-import com.feup.client.data.model.dto.TransactionDto
+import com.feup.client.data.dto.RegisterUserRequestDto
+import com.feup.client.data.dto.RegisterUserResponseDto
+import com.feup.client.data.dto.TransactionDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

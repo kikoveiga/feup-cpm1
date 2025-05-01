@@ -1,4 +1,4 @@
-package com.feup.terminal.data.model.dto
+package com.feup.terminal.data.dto
 
 data class ProductDto(
     val productUuid: String,

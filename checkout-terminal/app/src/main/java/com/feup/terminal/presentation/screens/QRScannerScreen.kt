@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.feup.terminal.data.model.dto.TransactionFromServerDto
+import com.feup.terminal.data.dto.TransactionFromServerDto
 import com.feup.terminal.presentation.QRScannerViewModel
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions

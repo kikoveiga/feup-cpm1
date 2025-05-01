@@ -6,6 +6,8 @@
 - **Terminal Checkout App** – Android app built with Kotlin and Jetpack Compose. Used in physical stores by the cashier to process payments and apply vouchers.
 - **Backend Server** – A RESTful API built with Spring Boot and Kotlin that handles authentication, transactions, and secure data synchronization.
 
+This is a brief overview of the project. For more details, please check the [report](report.pdf) and the [presentation slides](presentation.pdf).
+
 ## Group Members
 
 1. Henrique Gardé (up202108725@up.pt)
@@ -35,4 +37,15 @@ Because the server is running on localhost in a personal computer, you need to s
 - **Create a Transaction**: After having some products in the cart, the client can create a transaction QR code. This code is read by the Terminal Checkout App (also via camera) and the information is parsed and sent to the server for validation.
 - **Consult Transactions and Vouchers**: The client can consult their past transactions and unused vouchers. These are stored in the Server database and fetched on demand when the client wants to see them.
 
-For more information about the project, please check the [report](report.pdf) and the [presentation slides](presentation.pdf).
+## Main Technologies & Libraries
+
+- **Kotlin & Jetpack Compose**: Used for building the Android apps.
+- **Kotlin & Spring Boot**: Used for building the backend server.
+- **Clean Architecture & MVVM**: Used for structuring the Android apps.
+- **Hilt**: Dependency injection library used in the Android apps.
+- **Retrofit & OkHttp**: Used for making network requests in the Android apps.
+- **Room**: SQLite database used for local storage in the Client App.
+- **DataStore**: Used for storing user information in the Client App.
+- **Zxing**: Library used for QR code scanning in the Android apps.
+- **Kotlinx Serialization**: Used for serializing and deserializing data in the Android apps.
+- **KSP**: Kotlin Symbol Processing which substitutes the deprecated kapt.

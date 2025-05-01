@@ -13,7 +13,7 @@ class VoucherRepositoryImpl @Inject constructor(
     private val voucherDao: VoucherDao
 ) : VoucherRepository {
 
-    override fun getLocalVouchers(userUuid: String): List<Voucher> {
+    override suspend fun getLocalVouchers(userUuid: String): List<Voucher> {
         return voucherDao.getUnusedVouchers(userUuid).map {
             it.toDomain()
         }
@@ -25,10 +25,10 @@ class VoucherRepositoryImpl @Inject constructor(
             val localVouchers = remoteVouchers.map {
                 VoucherEntity(
                     voucherUuid = it,
-                    userUuid = userUuid,
-                    isUsed = false
+                    userUuid = userUuid
                 )
             }
+
             voucherDao.insertVouchers(localVouchers)
         }
     }

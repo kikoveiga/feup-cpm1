@@ -10,7 +10,7 @@ import com.feup.client.data.local.database.entity.VoucherEntity
 interface VoucherDao {
 
     @Query("SELECT * FROM vouchers WHERE isUsed = 0 AND userUuid = :userUuid")
-    fun getUnusedVouchers(userUuid: String): List<VoucherEntity>
+    suspend fun getUnusedVouchers(userUuid: String): List<VoucherEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVouchers(vouchers: List<VoucherEntity>)

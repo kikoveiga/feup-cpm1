@@ -36,6 +36,7 @@ Because the server is running on localhost in a personal computer, you need to s
 - **Product Scanning**: For this feature, the camera is needed in a physical device. You can scan the products QR codes present in the [products](products.pdf) file. It's possible to change quantities and remove products from the cart.
 - **Create a Transaction**: After having some products in the cart, the client can create a transaction QR code. This code is read by the Terminal Checkout App (also via camera) and the information is parsed and sent to the server for validation.
 - **Consult Transactions and Vouchers**: The client can consult their past transactions and unused vouchers. These are stored in the Server database and fetched on demand when the client wants to see them.
+- **Cryptography**: Various algorithms and techniques are used to ensure the security in the communication between the components, such as **RSA encryption**, **ECDSA signatures** and **Base64 encoding**.
 
 ## Main Technologies & Libraries
 
@@ -45,7 +46,8 @@ Because the server is running on localhost in a personal computer, you need to s
 - **Hilt**: Dependency injection library used in the Android apps.
 - **Retrofit & OkHttp**: Used for making network requests in the Android apps.
 - **Room**: SQLite database used for local storage in the Client App.
-- **DataStore**: Used for storing user information in the Client App.
+- **Jetpack DataStore**: Used for storing user information in the Client App, substituting SharedPreferences.
+- **Android Keystore**: Used for storing cryptographic keys securely in the Client App.
 - **Zxing**: Library used for QR code scanning in the Android apps.
-- **Kotlinx Serialization**: Used for serializing and deserializing data in the Android apps.
+- **Kotlinx Serialization & Gson**: Used for serializing and deserializing data in the Android apps.
 - **KSP**: Kotlin Symbol Processing which substitutes the deprecated kapt.

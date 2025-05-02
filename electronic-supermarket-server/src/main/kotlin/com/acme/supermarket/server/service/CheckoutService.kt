@@ -26,18 +26,28 @@ class CheckoutService(
     private val transactionRepository: TransactionRepository,
     private val userService: UserService,
     private val productRepository: ProductRepository,
-    private val transactionProductRepository: TransactionProductRepository
+    private val transactionProductRepository: TransactionProductRepository,
+    private val cryptoService: CryptoService
 ) {
 
     fun processCheckout(transaction: TransactionToServerDto): TransactionFromServerDto {
-      /*  if (!verifySignature(transaction)) {
-            return TransactionFromServerDto(false,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                "Signature verification failure."
-            )
+
+        val user = userRepository.findByUserUuid(transaction.userUuid)
+            ?: throw BadRequestException("User not found for the given UUID.")
+
+
+        val messageToVerify = "userUuid:${transaction.userUuid}&nonce:${transaction.date}"
+
+        val isValid = cryptoService.verifyEcSignature(
+            publicKeyBase64 = user.ecPublicKey,
+            message = messageToVerify,
+            signatureBase64 = transaction.signature
+        )
+
+        if (!isValid) {
+            throw BadRequestException("Invalid signature.")
         }
-*/
+
         validateRequest(transaction)
 
         var totalValue = calculateTotalValue(transaction.products)
@@ -75,10 +85,6 @@ class CheckoutService(
                     "Invalid voucher, used or does not belong to the user."
                 )
             }
-        }
-        val user = userRepository.findByUserUuid(transaction.userUuid)
-        if (user == null) {
-            throw BadRequestException("User not found for the given UUID.")
         }
 
         val newTotalSpent = totalValue.add(user.totalSpent)

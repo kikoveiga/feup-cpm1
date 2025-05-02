@@ -97,6 +97,7 @@ class ShoppingViewModel @Inject constructor(
             val useAccumulatedDiscount = _uiState.value.useAccumulatedDiscount
             val voucherId = _uiState.value.appliedVoucher?.voucherUuid
 
+
             val transactionDto = generateTransactionQrUseCase.invoke(
                 userUuid = userUuid,
                 products = products,

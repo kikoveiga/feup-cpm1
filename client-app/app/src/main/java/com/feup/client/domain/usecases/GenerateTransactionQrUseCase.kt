@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 
 class GenerateTransactionQrUseCase @Inject constructor(
-    private val cryptoManager: CryptoManager
+    private val cryptoManager: CryptoManager,
 ) {
     fun invoke(
         userUuid: String,
@@ -19,6 +19,7 @@ class GenerateTransactionQrUseCase @Inject constructor(
         useAccumulatedDiscount: Boolean,
         voucherId: String?
     ): TransactionToServerDto {
+
         val date = System.currentTimeMillis().toString() // acts as a nonce
 
         val message = "userUuid:$userUuid&nonce:$date"

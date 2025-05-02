@@ -92,6 +92,7 @@ class ShoppingViewModel @Inject constructor(
         viewModelScope.launch {
             val products = _uiState.value.scannedProducts.values.toList()
             val userUuid = userDataStore.getLoggedInUser().uuid ?: throw IllegalStateException("User is not logged in")
+            val userNickname = userDataStore.getLoggedInUser().nickname ?: throw IllegalStateException("User is not logged in")
 
             val useAccumulatedDiscount = _uiState.value.useAccumulatedDiscount
             val voucherId = _uiState.value.appliedVoucher?.voucherUuid
@@ -100,7 +101,8 @@ class ShoppingViewModel @Inject constructor(
                 userUuid = userUuid,
                 products = products,
                 useAccumulatedDiscount = useAccumulatedDiscount,
-                voucherId = voucherId
+                voucherId = voucherId,
+                userNickname = userNickname
             )
 
             val qrContent = generateTransactionQrUseCase.toQrContent(transactionDto)

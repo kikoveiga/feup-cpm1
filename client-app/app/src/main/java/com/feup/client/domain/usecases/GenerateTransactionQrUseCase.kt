@@ -14,11 +14,16 @@ class GenerateTransactionQrUseCase @Inject constructor(
 ) {
     fun invoke(
         userUuid: String,
+        userNickname: String,
         products: List<Product>,
         useAccumulatedDiscount: Boolean,
         voucherId: String?
     ): TransactionToServerDto {
-        val date = System.currentTimeMillis().toString()
+        val date = System.currentTimeMillis().toString() // acts as a nonce
+
+        val message = "userUuid:$userUuid&nonce:$date"
+
+        val signature = cryptoManager.generateSignature(userNickname = userNickname, message.toByteArray())
 
         return TransactionToServerDto(
             userUuid = userUuid,
@@ -26,9 +31,10 @@ class GenerateTransactionQrUseCase @Inject constructor(
             products = products,
             voucherId = voucherId,
             useAccumulatedDiscount = useAccumulatedDiscount,
-            signature = "ZmFrZV9zaWduYXR1cmU="
+            signature = signature
         )
     }
+
 
     fun toQrContent(dto: TransactionToServerDto): String {
         val jsonString = Json.encodeToString(dto)

@@ -25,6 +25,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 @Composable
 fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
@@ -81,7 +82,11 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                             viewModel.clearCart()
                             showCheckoutDialog.value = false
                             useVouchers.value = false
+                            useAccumulatedDiscount.value = false
                             viewModel.fetchVouchers()
+                            viewModel.setUseVouchers(false)
+                            viewModel.fetchAccumulatedDiscount()
+                            viewModel.setUseAccumulatedDiscount(false)
                         }
                     ) {
                         Text("OK")
@@ -160,7 +165,11 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                 Text("Use Accumulated Discount: $discountFormatted")
                 Switch(
                     checked = useAccumulatedDiscount.value,
-                    onCheckedChange = { useAccumulatedDiscount.value = it }
+                    onCheckedChange = {
+                        useAccumulatedDiscount.value = it
+                        viewModel.setUseAccumulatedDiscount(it)
+                    },
+                    enabled = state.value.accumulatedDiscount > BigDecimal.ZERO
                 )
             }
 

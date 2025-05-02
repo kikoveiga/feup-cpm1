@@ -16,5 +16,4 @@ data class ShoppingUiState(
     val useAccumulatedDiscount: Boolean = false,
     val appliedVoucher: Voucher? = null,
     val transactions: List<Transaction> = emptyList(),
-
     )

@@ -25,9 +25,7 @@ class ShoppingViewModel @Inject constructor(
     private val generateTransactionQrUseCase: GenerateTransactionQrUseCase,
     private val fetchVouchersUseCase: FetchVouchersUseCase,
     private val fetchAccumulatedDiscountUseCase: FetchAccumulatedDiscountUseCase,
-    private val userDataStore: UserDataStore,
-    private val fetchTransactionsUseCase: FetchTransactionsUseCase,
-    private val voucherDao: VoucherDao
+    private val userDataStore: UserDataStore
     ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ShoppingUiState())
@@ -156,8 +154,11 @@ class ShoppingViewModel @Inject constructor(
     }
 
 
-    fun setUseAccumulatedDiscount(enabled: Boolean) {
-        _uiState.update { it.copy(useAccumulatedDiscount = enabled) }
+    fun setUseAccumulatedDiscount(use: Boolean) {
+        _uiState.update {
+            it.copy(useAccumulatedDiscount = use)
+        }
     }
+
 
 }

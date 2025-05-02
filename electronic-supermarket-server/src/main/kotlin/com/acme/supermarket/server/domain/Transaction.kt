@@ -1,8 +1,6 @@
 package com.acme.supermarket.server.domain
 
-import com.acme.supermarket.server.dto.ProductDto
 import com.acme.supermarket.server.dto.TransactionDto
-import com.acme.supermarket.server.dto.VoucherDto
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDateTime

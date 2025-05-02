@@ -10,10 +10,6 @@ import com.acme.supermarket.server.repository.*
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
-import java.security.KeyFactory
-import java.security.PublicKey
-import java.security.Signature
-import java.security.spec.X509EncodedKeySpec
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -26,18 +22,28 @@ class CheckoutService(
     private val transactionRepository: TransactionRepository,
     private val userService: UserService,
     private val productRepository: ProductRepository,
-    private val transactionProductRepository: TransactionProductRepository
+    private val transactionProductRepository: TransactionProductRepository,
+    private val cryptoService: CryptoService
 ) {
 
     fun processCheckout(transaction: TransactionToServerDto): TransactionFromServerDto {
-      /*  if (!verifySignature(transaction)) {
-            return TransactionFromServerDto(false,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                "Signature verification failure."
-            )
+
+        val user = userRepository.findByUserUuid(transaction.userUuid)
+            ?: throw BadRequestException("User not found for the given UUID.")
+
+
+        val messageToVerify = "userUuid:${transaction.userUuid}&nonce:${transaction.date}"
+
+        val isValid = cryptoService.verifyEcSignature(
+            publicKeyBase64 = user.ecPublicKey,
+            message = messageToVerify,
+            signatureBase64 = transaction.signature
+        )
+
+        if (!isValid) {
+            throw BadRequestException("Invalid signature.")
         }
-*/
+
         validateRequest(transaction)
 
         var totalValue = calculateTotalValue(transaction.products)
@@ -75,10 +81,6 @@ class CheckoutService(
                     "Invalid voucher, used or does not belong to the user."
                 )
             }
-        }
-        val user = userRepository.findByUserUuid(transaction.userUuid)
-        if (user == null) {
-            throw BadRequestException("User not found for the given UUID.")
         }
 
         val newTotalSpent = totalValue.add(user.totalSpent)
@@ -127,23 +129,6 @@ class CheckoutService(
         )
     }
 
-    private fun verifySignature(transaction: TransactionToServerDto): Boolean {
-        val user = userRepository.findByUserUuid(transaction.userUuid) ?: return false
-        val publicKey = getPublicKeyFromBase64(user.ecPublicKey)
-        val message = generateMessage(transaction)
-
-        val signature = Signature.getInstance("SHA256withECDSA")
-        signature.initVerify(publicKey)
-        signature.update(message.toByteArray())
-
-        return signature.verify(Base64.getDecoder().decode(transaction.signature))
-    }
-
-    private fun generateMessage(transaction: TransactionToServerDto): String {
-        val itemsString = transaction.products.joinToString(",") { "${it.productUuid}:${it.price}" }
-        return "${transaction.userUuid}|$itemsString|${transaction.voucherId ?: ""}|${transaction.useAccumulatedDiscount}"
-    }
-
     private fun calculateTotalValue(items: List<ProductDto>): BigDecimal {
         return items.fold(BigDecimal.ZERO) { total, product ->
             val itemTotal = BigDecimal(product.price).multiply(BigDecimal(product.quantity))
@@ -177,13 +162,6 @@ class CheckoutService(
 
     }
 
-    private fun getPublicKeyFromBase64(base64Key: String): PublicKey {
-        val keyBytes = Base64.getDecoder().decode(base64Key)
-        val keySpec = X509EncodedKeySpec(keyBytes)
-        val keyFactory = KeyFactory.getInstance("EC")
-        return keyFactory.generatePublic(keySpec)
-    }
-
     private fun validateRequest(transaction: TransactionToServerDto) {
         //If the requests are blank
         if (transaction.userUuid.isBlank()) throw BadRequestException("User UUID cannot be empty.")
@@ -210,8 +188,6 @@ class CheckoutService(
                 throw BadRequestException("This transaction has already been processed.")
             }
         }
-
-
 
     }
 

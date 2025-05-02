@@ -10,30 +10,14 @@ import com.acme.supermarket.server.repository.VoucherRepository
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
-import java.security.SecureRandom
-import java.util.*
 
 @Service
 class PastRecordsService(
-    private val nonceStore: NonceStore,
     private val userRepository: UserRepository,
     private val transactionRepository: TransactionRepository,
     private val voucherRepository: VoucherRepository,
     private val cryptoService: CryptoService
 ) {
-
-    fun generateAndStoreNonce(userUuid: String): String {
-
-       userRepository.findByUserUuid(userUuid) ?: throw BadRequestException("User not found")
-
-        val nonceBytes = ByteArray(16)
-        SecureRandom().nextBytes(nonceBytes)
-        val nonceBase64 = Base64.getEncoder().encodeToString(nonceBytes)
-
-        nonceStore.storeNonce(userUuid, nonceBase64)
-
-        return nonceBase64
-    }
 
     fun verifyAndFetchTransactions(request: PastRecordsRequestDto): List<TransactionDto> {
 

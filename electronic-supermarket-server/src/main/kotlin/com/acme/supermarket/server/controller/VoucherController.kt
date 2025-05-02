@@ -1,9 +1,9 @@
-package com.acme.supermarket.server.controller;
+package com.acme.supermarket.server.controller
 
 import com.acme.supermarket.server.domain.Voucher
 import com.acme.supermarket.server.dto.CreateVoucherDto
-import com.acme.supermarket.server.repository.UserRepository;
-import com.acme.supermarket.server.repository.VoucherRepository;
+import com.acme.supermarket.server.repository.UserRepository
+import com.acme.supermarket.server.repository.VoucherRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*

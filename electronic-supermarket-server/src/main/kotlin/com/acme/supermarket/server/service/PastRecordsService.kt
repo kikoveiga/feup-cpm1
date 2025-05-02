@@ -9,6 +9,7 @@ import com.acme.supermarket.server.repository.UserRepository
 import com.acme.supermarket.server.repository.VoucherRepository
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.security.SecureRandom
 import java.util.*
 
@@ -79,5 +80,24 @@ class PastRecordsService(
         return vouchers.map { it.uuid }
     }
 
+    fun verifyAndCalculateAccumulatedDiscount(request: PastRecordsRequestDto): BigDecimal {
+
+        val user = userRepository.findByUserUuid(request.userUuid)
+            ?: throw BadRequestException("User not found")
+
+        val messageToVerify = "userUuid:${request.userUuid}&nonce:${request.nonce}"
+
+        val isValid = cryptoService.verifyEcSignature(
+            publicKeyBase64 = user.ecPublicKey,
+            message = messageToVerify,
+            signatureBase64 = request.signature
+        )
+
+        if (!isValid) {
+            throw BadRequestException("Invalid signature.")
+        }
+
+        return user.accumulatedDiscount
+    }
 }
 

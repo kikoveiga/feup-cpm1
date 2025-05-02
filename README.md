@@ -33,7 +33,7 @@ Because the server is running on localhost in a personal computer, you need to s
 ## Main Features
 
 - **User Authentication**: Register users on the Client App which stores the information locally in the device and on the server. The login process is done locally, without the server. Clients can also logout, change their password, and delete their account.
-- **Product Scanning**: For this feature, the camera is needed in a physical device. You can scan the products QR codes present in the [products](products.pdf) file. It's possible to change quantities and remove products from the cart.
+- **Product Scanning**: For this feature, the camera is needed in a physical device. You can scan the products QR codes present in the [products](Products.png) file. It's possible to change quantities and remove products from the cart.
 - **Create a Transaction**: After having some products in the cart, the client can create a transaction QR code. This code is read by the Terminal Checkout App (also via camera) and the information is parsed and sent to the server for validation.
 - **Consult Transactions and Vouchers**: The client can consult their past transactions and unused vouchers. These are stored in the Server database and fetched on demand when the client wants to see them.
 - **Cryptography**: Various algorithms and techniques are used to ensure the security in the communication between the components, such as **RSA encryption**, **ECDSA signatures** and **Base64 encoding**.

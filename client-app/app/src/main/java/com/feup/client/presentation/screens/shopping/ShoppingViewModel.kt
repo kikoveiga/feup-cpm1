@@ -89,8 +89,13 @@ class ShoppingViewModel @Inject constructor(
 
             val products = _uiState.value.scannedProducts.values.toList()
             val userUuid = userDataStore.getLoggedInUser().uuid ?: throw IllegalStateException("User is not logged in")
-
-            val transaction = generateTransactionQrUseCase.invoke(userUuid = userUuid, products = products)
+            val voucherId = _uiState.value.appliedVoucher?.voucherUuid
+            val useAccumulatedDiscount = _uiState.value.useAccumulatedDiscount
+            //Missing signature here
+            val transaction = generateTransactionQrUseCase.invoke(userUuid = userUuid, products = products,
+                discount = if (useAccumulatedDiscount) _uiState.value.accumulatedDiscount.toDouble() else 0.0,
+                voucher = _uiState.value.appliedVoucher
+            )
             val qrContent = generateTransactionQrUseCase.toQrContent(transaction)
 
             _uiState.update { it.copy(qrContent = qrContent) }
@@ -128,8 +133,18 @@ class ShoppingViewModel @Inject constructor(
 
 
     fun setUseVouchers(enabled: Boolean) {
-        _uiState.update { it.copy(useVouchers = enabled) }
+        if (enabled && _uiState.value.vouchers.isEmpty()) {
+            _uiState.update { it.copy(error = "You do not have any vouchers.") }
+        } else {
+            val randomVoucher = _uiState.value.vouchers.randomOrNull()
+            if (enabled && randomVoucher != null) {
+                _uiState.update { it.copy(useVouchers = true, appliedVoucher = randomVoucher) }
+            } else {
+                _uiState.update { it.copy(useVouchers = false, appliedVoucher = null) }
+            }
+        }
     }
+
 
     fun setUseAccumulatedDiscount(enabled: Boolean) {
         _uiState.update { it.copy(useAccumulatedDiscount = enabled) }

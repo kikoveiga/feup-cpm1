@@ -9,9 +9,10 @@ data class ShoppingUiState(
     val totalPrice: Double = 0.0,
     val qrContent: String? = null,
     val vouchers: List<Voucher> = emptyList(),
+    val accumulatedDiscount: BigDecimal = BigDecimal.ZERO,
     val error: String? = null,
     val useVouchers: Boolean = false,
     val useAccumulatedDiscount: Boolean = false,
-    val accumulatedDiscount: BigDecimal = BigDecimal.ZERO,
+    val appliedVoucher: Voucher? = null,
 
 )

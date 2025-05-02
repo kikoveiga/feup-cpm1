@@ -137,9 +137,15 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                 Text("Use Vouchers: ${state.value.vouchers.size}")
                 Switch(
                     checked = useVouchers.value,
-                    onCheckedChange = { useVouchers.value = it }
+                    onCheckedChange = {
+                        if (state.value.vouchers.isNotEmpty()) {
+                            useVouchers.value = it
+                            viewModel.setUseVouchers(it)
+                        }
+                    }
                 )
             }
+
 
             Row(
                 modifier = Modifier

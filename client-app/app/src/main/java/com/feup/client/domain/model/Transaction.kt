@@ -7,7 +7,9 @@ data class Transaction(
     val userUuid: String,
     val date: String,
     val products: List<Product>,
-    val price: Double,
-    val discount: Double,
-    val voucherUsed: Voucher? = null,
+    val voucherUuid : String? = null,
+    val price: Double? = null,
+    val useAccumulatedDiscount: Boolean = false,
+    val discount: Double = 0.0,
+    val signature: String = "",
 )

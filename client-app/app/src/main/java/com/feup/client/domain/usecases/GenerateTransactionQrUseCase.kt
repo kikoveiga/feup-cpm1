@@ -1,13 +1,10 @@
 package com.feup.client.domain.usecases
 
-import com.feup.client.data.dto.TransactionToServerDto
 import com.feup.client.domain.crypto.CryptoManager
 import com.feup.client.domain.model.Product
 import com.feup.client.domain.model.Transaction
-import com.feup.client.domain.model.Voucher
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
-
 
 class GenerateTransactionQrUseCase @Inject constructor(
     private val cryptoManager: CryptoManager,
@@ -17,8 +14,8 @@ class GenerateTransactionQrUseCase @Inject constructor(
         userNickname: String,
         products: List<Product>,
         useAccumulatedDiscount: Boolean,
-        voucherId: String?
-    ): TransactionToServerDto {
+        voucherUuid: String?
+    ): Transaction {
 
         val date = System.currentTimeMillis().toString() // acts as a nonce
 
@@ -26,19 +23,18 @@ class GenerateTransactionQrUseCase @Inject constructor(
 
         val signature = cryptoManager.generateSignature(userNickname = userNickname, message.toByteArray())
 
-        return TransactionToServerDto(
+        return Transaction(
             userUuid = userUuid,
             date = date,
             products = products,
-            voucherId = voucherId,
+            voucherUuid = voucherUuid,
             useAccumulatedDiscount = useAccumulatedDiscount,
             signature = signature
         )
     }
 
-
-    fun toQrContent(dto: TransactionToServerDto): String {
-        val jsonString = Json.encodeToString(dto)
+    fun toQrContent(transaction: Transaction): String {
+        val jsonString = Json.encodeToString(transaction)
         val jsonBytes = jsonString.toByteArray()
         return cryptoManager.encodeToBase64(jsonBytes)
     }

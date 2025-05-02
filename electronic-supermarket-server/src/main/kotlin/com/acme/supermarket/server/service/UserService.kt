@@ -29,7 +29,7 @@ class UserService (
         val userUuid = UUID.randomUUID().toString()
 
         validateRequest(request,userUuid)
-        val cleanedCardNumber = request.paymentCardDto.number.replace(Regex("[^\\d]"), "")
+        val cleanedCardNumber = request.paymentCardDto.number.replace(Regex("\\D"), "")
 
         val user = User(
             userUuid = userUuid,
@@ -74,7 +74,7 @@ class UserService (
 
         try {
             CardType.valueOf(request.paymentCardDto.type.uppercase())
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             throw BadRequestException("Invalid card type. Allowed values are 'DEBIT' or 'CREDIT'.")
         }
         if (!isValidCardNumber(request.paymentCardDto.number)) throw BadRequestException("Invalid card number.")

@@ -3,7 +3,7 @@ package com.feup.client.data.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ErrorResponse(
+data class ErrorResponseDto(
     val timestamp: String? = null,
     val status: String? = null,
     val error: String? = null,

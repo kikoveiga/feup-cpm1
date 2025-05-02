@@ -2,16 +2,12 @@ package com.feup.client.presentation.screens.shopping
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feup.client.data.local.database.dao.VoucherDao
 import com.feup.client.domain.local.UserDataStore
-import com.feup.client.domain.repository.VoucherRepository
 import com.feup.client.domain.usecases.FetchAccumulatedDiscountUseCase
-import com.feup.client.domain.usecases.FetchTransactionsUseCase
 import com.feup.client.domain.usecases.FetchVouchersUseCase
 import com.feup.client.domain.usecases.GenerateTransactionQrUseCase
 import com.feup.client.domain.usecases.ScanProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -92,21 +88,20 @@ class ShoppingViewModel @Inject constructor(
         viewModelScope.launch {
             val products = _uiState.value.scannedProducts.values.toList()
             val userUuid = userDataStore.getLoggedInUser().uuid ?: throw IllegalStateException("User is not logged in")
-            val userNickname = userDataStore.getLoggedInUser().nickname ?: throw IllegalStateException("User is not logged in")
+            val userNickname = userDataStore.getLoggedInUser().nickname
 
             val useAccumulatedDiscount = _uiState.value.useAccumulatedDiscount
-            val voucherId = _uiState.value.appliedVoucher?.voucherUuid
+            val voucherUuid = _uiState.value.appliedVoucher?.voucherUuid
 
-
-            val transactionDto = generateTransactionQrUseCase.invoke(
+            val transaction = generateTransactionQrUseCase.invoke(
                 userUuid = userUuid,
                 products = products,
                 useAccumulatedDiscount = useAccumulatedDiscount,
-                voucherId = voucherId,
+                voucherUuid = voucherUuid,
                 userNickname = userNickname
             )
 
-            val qrContent = generateTransactionQrUseCase.toQrContent(transactionDto)
+            val qrContent = generateTransactionQrUseCase.toQrContent(transaction)
 
             _uiState.update { it.copy(qrContent = qrContent) }
         }
@@ -140,8 +135,6 @@ class ShoppingViewModel @Inject constructor(
             }
         }
     }
-
-
 
     fun setUseVouchers(enabled: Boolean) {
         if (enabled && _uiState.value.vouchers.isEmpty()) {

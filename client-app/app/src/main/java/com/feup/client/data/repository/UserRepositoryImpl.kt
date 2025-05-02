@@ -1,6 +1,6 @@
 package com.feup.client.data.repository
 
-import com.feup.client.data.dto.ErrorResponse
+import com.feup.client.data.dto.ErrorResponseDto
 import com.feup.client.data.mapper.toRegisterUserRequestDto
 import com.feup.client.data.remote.SupermarketApi
 import com.feup.client.domain.crypto.CryptoManager
@@ -28,7 +28,7 @@ class UserRepositoryImpl @Inject constructor(
         } catch (e: HttpException) {
             val errorBody = e.response()?.errorBody()?.string()
             val message = try {
-                val error = Json.decodeFromString<ErrorResponse>(errorBody ?: "")
+                val error = Json.decodeFromString<ErrorResponseDto>(errorBody ?: "")
                 error.message ?: "Unknown error"
             } catch (parseError: Exception) {
                 errorBody ?: "Unknown error"

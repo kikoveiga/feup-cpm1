@@ -2,18 +2,14 @@ package com.acme.supermarket.server.service
 
 
 import com.acme.supermarket.server.domain.toDto
-import com.acme.supermarket.server.dto.*
+import com.acme.supermarket.server.dto.PastRecordsRequestDto
+import com.acme.supermarket.server.dto.TransactionDto
 import com.acme.supermarket.server.repository.TransactionRepository
 import com.acme.supermarket.server.repository.UserRepository
 import com.acme.supermarket.server.repository.VoucherRepository
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
-import java.security.KeyFactory
-import java.security.PublicKey
 import java.security.SecureRandom
-import java.security.Signature
-import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
 @Service
@@ -83,24 +79,5 @@ class PastRecordsService(
         return vouchers.map { it.uuid }
     }
 
-    fun verifyAndCalculateAccumulatedDiscount(request: PastRecordsRequestDto): BigDecimal {
-
-        val user = userRepository.findByUserUuid(request.userUuid)
-            ?: throw BadRequestException("User not found")
-
-        val messageToVerify = "userUuid:${request.userUuid}&nonce:${request.nonce}"
-
-        val isValid = cryptoService.verifyEcSignature(
-            publicKeyBase64 = user.ecPublicKey,
-            message = messageToVerify,
-            signatureBase64 = request.signature
-        )
-
-        if (!isValid) {
-            throw BadRequestException("Invalid signature.")
-        }
-
-        return user.accumulatedDiscount;
-    }
 }
 

@@ -171,7 +171,8 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                             useVouchers.value = it
                             viewModel.setUseVouchers(it)
                         }
-                    }
+                    },
+                    enabled = state.value.vouchers.isNotEmpty()
                 )
             }
 

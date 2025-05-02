@@ -6,7 +6,7 @@
 - **Terminal Checkout App** – Android app built with Kotlin and Jetpack Compose. Used in physical stores by the cashier to process payments and apply vouchers.
 - **Backend Server** – A RESTful API built with Spring Boot and Kotlin that handles authentication, transactions, and secure data synchronization.
 
-This is a brief overview of the project. For more details, please check the [report](report.pdf) and the [presentation slides](presentation.pdf).
+This is a brief overview of the project. For more details, please check the [report](Report.pdf) and the [presentation slides](Presentation.pdf).
 
 ## Group Members
 

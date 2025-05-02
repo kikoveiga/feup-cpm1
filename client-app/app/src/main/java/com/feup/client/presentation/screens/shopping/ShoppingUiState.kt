@@ -1,6 +1,7 @@
 package com.feup.client.presentation.screens.shopping
 
 import com.feup.client.domain.model.Product
+import com.feup.client.domain.model.Transaction
 import com.feup.client.domain.model.Voucher
 import java.math.BigDecimal
 
@@ -14,5 +15,6 @@ data class ShoppingUiState(
     val useVouchers: Boolean = false,
     val useAccumulatedDiscount: Boolean = false,
     val appliedVoucher: Voucher? = null,
+    val transactions: List<Transaction> = emptyList(),
 
-)
+    )

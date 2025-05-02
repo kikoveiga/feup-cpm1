@@ -20,17 +20,13 @@ class GenerateTransactionQrUseCase @Inject constructor(
     ): TransactionToServerDto {
         val date = System.currentTimeMillis().toString()
 
-        val signature = cryptoManager.generateSignature(userUuid,
-            "$userUuid|$date|${products.hashCode()}|$voucherId|$useAccumulatedDiscount".toByteArray()
-        )
-
         return TransactionToServerDto(
             userUuid = userUuid,
             date = date,
             products = products,
             voucherId = voucherId,
             useAccumulatedDiscount = useAccumulatedDiscount,
-            signature = signature
+            signature = "ZmFrZV9zaWduYXR1cmU="
         )
     }
 

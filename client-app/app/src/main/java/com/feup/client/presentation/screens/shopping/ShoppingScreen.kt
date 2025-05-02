@@ -80,6 +80,8 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                         onClick = {
                             viewModel.clearCart()
                             showCheckoutDialog.value = false
+                            useVouchers.value = false
+                            viewModel.fetchVouchers()
                         }
                     ) {
                         Text("OK")

@@ -2,12 +2,16 @@ package com.feup.client.presentation.screens.shopping
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feup.client.data.local.database.dao.VoucherDao
 import com.feup.client.domain.local.UserDataStore
+import com.feup.client.domain.repository.VoucherRepository
 import com.feup.client.domain.usecases.FetchAccumulatedDiscountUseCase
+import com.feup.client.domain.usecases.FetchTransactionsUseCase
 import com.feup.client.domain.usecases.FetchVouchersUseCase
 import com.feup.client.domain.usecases.GenerateTransactionQrUseCase
 import com.feup.client.domain.usecases.ScanProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -22,7 +26,9 @@ class ShoppingViewModel @Inject constructor(
     private val fetchVouchersUseCase: FetchVouchersUseCase,
     private val fetchAccumulatedDiscountUseCase: FetchAccumulatedDiscountUseCase,
     private val userDataStore: UserDataStore,
-) : ViewModel() {
+    private val fetchTransactionsUseCase: FetchTransactionsUseCase,
+    private val voucherDao: VoucherDao
+    ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ShoppingUiState())
     val uiState: StateFlow<ShoppingUiState> = _uiState

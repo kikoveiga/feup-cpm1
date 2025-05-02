@@ -1,7 +1,9 @@
 package com.feup.client.data.dto
 
 import com.feup.client.domain.model.Product
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TransactionToServerDto(
     val userUuid: String,
     val date: String,

@@ -3,6 +3,7 @@ package com.feup.client.presentation.screens.shopping
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feup.client.domain.local.UserDataStore
+import com.feup.client.domain.usecases.FetchAccumulatedDiscountUseCase
 import com.feup.client.domain.usecases.FetchVouchersUseCase
 import com.feup.client.domain.usecases.GenerateTransactionQrUseCase
 import com.feup.client.domain.usecases.ScanProductUseCase
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,7 +20,8 @@ class ShoppingViewModel @Inject constructor(
     private val scanProductUseCase: ScanProductUseCase,
     private val generateTransactionQrUseCase: GenerateTransactionQrUseCase,
     private val fetchVouchersUseCase: FetchVouchersUseCase,
-    private val userDataStore: UserDataStore
+    private val fetchAccumulatedDiscountUseCase: FetchAccumulatedDiscountUseCase,
+    private val userDataStore: UserDataStore,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ShoppingUiState())
@@ -105,6 +108,24 @@ class ShoppingViewModel @Inject constructor(
             }
         }
     }
+
+    fun fetchAccumulatedDiscount() {
+        viewModelScope.launch {
+            val user = userDataStore.getLoggedInUser()
+            val userNickname = user.nickname
+            val userUuid = user.uuid ?: throw IllegalStateException("User is not logged in")
+
+            fetchAccumulatedDiscountUseCase(userNickname, userUuid).onSuccess { discount ->
+                _uiState.update {
+                    it.copy(accumulatedDiscount = discount.getOrNull() ?: BigDecimal.ZERO)
+                }
+            }.onFailure {
+                _uiState.update { it.copy(error = "Failed to fetch accumulated discount") }
+            }
+        }
+    }
+
+
 
     fun setUseVouchers(enabled: Boolean) {
         _uiState.update { it.copy(useVouchers = enabled) }

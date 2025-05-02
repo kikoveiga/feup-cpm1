@@ -3,37 +3,15 @@ package com.feup.client.presentation.screens.shopping
 import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,6 +34,11 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
     val showCheckoutDialog = remember { mutableStateOf(false) }
     val useVouchers = remember { mutableStateOf(false) }
     val useAccumulatedDiscount = remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchVouchers()
+        viewModel.fetchAccumulatedDiscount()
+    }
 
     val launcher = rememberLauncherForActivityResult(ScanContract()) { result ->
         if (result.contents != null) {
@@ -125,7 +108,6 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
         }
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -145,58 +127,46 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Column {
-                Button(onClick = { viewModel.fetchVouchers() }) {
-                    Text("Fetch Vouchers")
-                }
-
-                state.value.vouchers.forEach {
-                    Text("Voucher ID: ${it.voucherUuid}, Used: ${it.isUsed}")
-                }
-
-                state.value.error?.let {
-                    Text("Error: $it", color = Color.Red)
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Use Vouchers")
-                    Switch(
-                        checked = useVouchers.value,
-                        onCheckedChange = { useVouchers.value = it }
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Use Accumulated Discount")
-                    Switch(
-                        checked = useAccumulatedDiscount.value,
-                        onCheckedChange = { useAccumulatedDiscount.value = it }
-                    )
-                }
-
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Use Vouchers: ${state.value.vouchers.size}")
+                Switch(
+                    checked = useVouchers.value,
+                    onCheckedChange = { useVouchers.value = it }
+                )
             }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                val discountFormatted = "%.2f€".format(state.value.accumulatedDiscount ?: 0.0)
+                Text("Use Accumulated Discount: $discountFormatted")
+                Switch(
+                    checked = useAccumulatedDiscount.value,
+                    onCheckedChange = { useAccumulatedDiscount.value = it }
+                )
+            }
+
 
             if (state.value.scannedProducts.isEmpty()) {
                 Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                     contentAlignment = Alignment.Center
-                )  {
+                ) {
                     Text("Your cart is empty.")
                 }
             } else {
-
                 LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
                     items(
                         state.value.scannedProducts.values.toList(),
@@ -247,7 +217,9 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                                         Icon(Icons.Default.Add, contentDescription = "Increase")
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    IconButton(onClick = { viewModel.removeProduct(product.productUuid) }) {
+                                    IconButton(onClick = {
+                                        viewModel.removeProduct(product.productUuid)
+                                    }) {
                                         Icon(Icons.Outlined.Delete, contentDescription = "Remove")
                                     }
                                 }
@@ -269,7 +241,7 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                             showCheckoutDialog.value = true
                             viewModel.generateTransactionQrContent()
                         },
-                        modifier = Modifier.weight(1f) // <-- equal space
+                        modifier = Modifier.weight(1f)
                     ) {
                         Text("Checkout")
                     }
@@ -277,7 +249,7 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
 
                 Button(
                     onClick = { launcher.launch(scanOptions) },
-                    modifier = Modifier.weight(1f) // <-- equal space
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text("Scan Product")
                 }

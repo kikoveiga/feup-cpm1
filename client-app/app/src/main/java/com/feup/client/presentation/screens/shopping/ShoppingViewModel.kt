@@ -86,21 +86,25 @@ class ShoppingViewModel @Inject constructor(
 
     fun generateTransactionQrContent() {
         viewModelScope.launch {
-
             val products = _uiState.value.scannedProducts.values.toList()
             val userUuid = userDataStore.getLoggedInUser().uuid ?: throw IllegalStateException("User is not logged in")
-            val voucherId = _uiState.value.appliedVoucher?.voucherUuid
+
             val useAccumulatedDiscount = _uiState.value.useAccumulatedDiscount
-            //Missing signature here
-            val transaction = generateTransactionQrUseCase.invoke(userUuid = userUuid, products = products,
-                discount = if (useAccumulatedDiscount) _uiState.value.accumulatedDiscount.toDouble() else 0.0,
-                voucher = _uiState.value.appliedVoucher
+            val voucherId = _uiState.value.appliedVoucher?.voucherUuid
+
+            val transactionDto = generateTransactionQrUseCase.invoke(
+                userUuid = userUuid,
+                products = products,
+                useAccumulatedDiscount = useAccumulatedDiscount,
+                voucherId = voucherId
             )
-            val qrContent = generateTransactionQrUseCase.toQrContent(transaction)
+
+            val qrContent = generateTransactionQrUseCase.toQrContent(transactionDto)
 
             _uiState.update { it.copy(qrContent = qrContent) }
         }
     }
+
 
     fun fetchVouchers() {
         viewModelScope.launch {

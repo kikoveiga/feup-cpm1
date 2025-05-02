@@ -47,7 +47,7 @@ object NetworkModule {
         retrofit.create(SupermarketApi::class.java)
 
     // Placeholder function, can be replaced with actual implementation
-    private fun isEmulator(): Boolean = false
+    private fun isEmulator(): Boolean = true
 }
 
 

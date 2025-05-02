@@ -26,6 +26,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -53,6 +54,8 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
     val scope = rememberCoroutineScope()
 
     val showCheckoutDialog = remember { mutableStateOf(false) }
+    val useVouchers = remember { mutableStateOf(false) }
+    val useAccumulatedDiscount = remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(ScanContract()) { result ->
         if (result.contents != null) {
@@ -154,6 +157,35 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                 state.value.error?.let {
                     Text("Error: $it", color = Color.Red)
                 }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Use Vouchers")
+                    Switch(
+                        checked = useVouchers.value,
+                        onCheckedChange = { useVouchers.value = it }
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Use Accumulated Discount")
+                    Switch(
+                        checked = useAccumulatedDiscount.value,
+                        onCheckedChange = { useAccumulatedDiscount.value = it }
+                    )
+                }
+
             }
 
             if (state.value.scannedProducts.isEmpty()) {

@@ -12,6 +12,7 @@ import com.feup.client.presentation.components.MyTopAppBar
 import com.feup.client.presentation.screens.profile.ProfileScreen
 import com.feup.client.presentation.screens.shopping.ShoppingScreen
 import com.feup.client.presentation.screens.transactions.TransactionsScreen
+import com.feup.client.presentation.screens.vouchers.VouchersScreen
 
 @Composable
 fun AppScaffold() {
@@ -25,6 +26,7 @@ fun AppScaffold() {
             NavHost(navController = navController, startDestination = BottomNavScreen.Shopping.route) {
                 composable(BottomNavScreen.Shopping.route) { ShoppingScreen() }
                 composable(BottomNavScreen.Transactions.route) { TransactionsScreen() }
+                composable(BottomNavScreen.Vouchers.route) { VouchersScreen() }
                 composable(BottomNavScreen.Profile.route) { ProfileScreen() }
             }
         }

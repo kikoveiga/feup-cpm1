@@ -9,4 +9,6 @@ data class ShoppingUiState(
     val qrContent: String? = null,
     val vouchers: List<Voucher> = emptyList(),
     val error: String? = null,
+    val useVouchers: Boolean = false,
+    val useAccumulatedDiscount: Boolean = false
 )

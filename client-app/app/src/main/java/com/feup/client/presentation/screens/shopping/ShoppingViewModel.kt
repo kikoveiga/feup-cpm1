@@ -105,4 +105,13 @@ class ShoppingViewModel @Inject constructor(
             }
         }
     }
+
+    fun setUseVouchers(enabled: Boolean) {
+        _uiState.update { it.copy(useVouchers = enabled) }
+    }
+
+    fun setUseAccumulatedDiscount(enabled: Boolean) {
+        _uiState.update { it.copy(useAccumulatedDiscount = enabled) }
+    }
+
 }

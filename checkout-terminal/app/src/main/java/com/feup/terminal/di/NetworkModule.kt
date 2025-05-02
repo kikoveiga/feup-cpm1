@@ -47,5 +47,5 @@ object NetworkModule {
         retrofit.create(TerminalApi::class.java)
 
     // Placeholder function, can be replaced with actual implementation
-    private fun isEmulator(): Boolean = false
+    private fun isEmulator(): Boolean = true
 }

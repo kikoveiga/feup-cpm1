@@ -4,6 +4,7 @@ import com.acme.supermarket.server.dto.*
 import com.acme.supermarket.server.service.PastRecordsService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.math.BigDecimal
 import kotlin.math.sign
 
 @RestController
@@ -33,5 +34,17 @@ class PastRecordsController(
         val response = pastRecordsService.verifyAndFetchVouchers(request)
         return ResponseEntity.ok(response)
     }
+
+    @GetMapping("/accumulated-discount")
+    fun getAccumulatedDiscount(
+        @RequestParam userUuid: String,
+        @RequestParam nonce: String,
+        @RequestParam signature: String
+    ): ResponseEntity<BigDecimal> {
+        val request = PastRecordsRequestDto(userUuid, nonce, signature)
+        val accumulatedDiscount = pastRecordsService.verifyAndCalculateAccumulatedDiscount(request)
+        return ResponseEntity.ok(accumulatedDiscount)
+    }
+
 
 }

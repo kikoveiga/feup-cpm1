@@ -29,7 +29,10 @@ class VoucherRepositoryImpl @Inject constructor(
                 )
             }
 
+            voucherDao.clearVouchersForUser(userUuid)
+
             voucherDao.insertVouchers(localVouchers)
         }
     }
+
 }

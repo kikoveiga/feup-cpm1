@@ -24,7 +24,7 @@ class QRScannerViewModel @Inject constructor(
         scanTransactionUseCase.invoke(base64Content).onSuccess { transactionData ->
             println("Parsed transaction data: $transactionData") // <-- Print the parsed transaction
 
-            val transactionToServerDto = transactionToDto(transactionData)
+            val transactionToServerDto = transactionData
 
             if (!validateTransaction(transactionToServerDto)) {
                 onResult(null)
@@ -54,23 +54,6 @@ class QRScannerViewModel @Inject constructor(
         }
     }
 
-    private fun transactionToDto(transaction: Transaction): TransactionToServerDto {
-        return TransactionToServerDto(
-            userUuid = transaction.userUuid,
-            date = transaction.date,
-            products = transaction.products.map { product ->
-                ProductDto(
-                    productUuid = product.productUuid,
-                    price = product.price,
-                    name = product.name,
-                    quantity = product.quantity
-                )
-            },
-            voucherId = transaction.voucherUsed?.id,
-            useAccumulatedDiscount = transaction.discount > 0.0,
-            signature = "AAAAAAAA" // TODO: Replace with real signature!
-        )
-    }
 
     private fun validateTransaction(transactionData: TransactionToServerDto): Boolean {
         if (transactionData.userUuid.isBlank()) return false

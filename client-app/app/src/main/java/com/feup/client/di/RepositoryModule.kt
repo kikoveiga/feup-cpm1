@@ -1,8 +1,10 @@
 package com.feup.client.di
 
+import com.feup.client.data.repository.AccumulatedDiscountRepositoryImpl
 import com.feup.client.data.repository.TransactionRepositoryImpl
 import com.feup.client.data.repository.UserRepositoryImpl
 import com.feup.client.data.repository.VoucherRepositoryImpl
+import com.feup.client.domain.repository.AccumulatedDiscountRepository
 import com.feup.client.domain.repository.TransactionRepository
 import com.feup.client.domain.repository.UserRepository
 import com.feup.client.domain.repository.VoucherRepository
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindVoucherRepository(
         voucherRepositoryImpl: VoucherRepositoryImpl
     ): VoucherRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAccumulatedDiscountRepository(
+        accumulatedDiscountRepositoryImpl: AccumulatedDiscountRepositoryImpl
+    ): AccumulatedDiscountRepository
 }

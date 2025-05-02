@@ -2,15 +2,21 @@ package com.feup.client.presentation.screens.shopping
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.feup.client.data.local.database.dao.VoucherDao
 import com.feup.client.domain.local.UserDataStore
+import com.feup.client.domain.repository.VoucherRepository
+import com.feup.client.domain.usecases.FetchAccumulatedDiscountUseCase
+import com.feup.client.domain.usecases.FetchTransactionsUseCase
 import com.feup.client.domain.usecases.FetchVouchersUseCase
 import com.feup.client.domain.usecases.GenerateTransactionQrUseCase
 import com.feup.client.domain.usecases.ScanProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,8 +24,9 @@ class ShoppingViewModel @Inject constructor(
     private val scanProductUseCase: ScanProductUseCase,
     private val generateTransactionQrUseCase: GenerateTransactionQrUseCase,
     private val fetchVouchersUseCase: FetchVouchersUseCase,
+    private val fetchAccumulatedDiscountUseCase: FetchAccumulatedDiscountUseCase,
     private val userDataStore: UserDataStore
-) : ViewModel() {
+    ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ShoppingUiState())
     val uiState: StateFlow<ShoppingUiState> = _uiState
@@ -83,16 +90,25 @@ class ShoppingViewModel @Inject constructor(
 
     fun generateTransactionQrContent() {
         viewModelScope.launch {
-
             val products = _uiState.value.scannedProducts.values.toList()
             val userUuid = userDataStore.getLoggedInUser().uuid ?: throw IllegalStateException("User is not logged in")
 
-            val transaction = generateTransactionQrUseCase.invoke(userUuid = userUuid, products = products)
-            val qrContent = generateTransactionQrUseCase.toQrContent(transaction)
+            val useAccumulatedDiscount = _uiState.value.useAccumulatedDiscount
+            val voucherId = _uiState.value.appliedVoucher?.voucherUuid
+
+            val transactionDto = generateTransactionQrUseCase.invoke(
+                userUuid = userUuid,
+                products = products,
+                useAccumulatedDiscount = useAccumulatedDiscount,
+                voucherId = voucherId
+            )
+
+            val qrContent = generateTransactionQrUseCase.toQrContent(transactionDto)
 
             _uiState.update { it.copy(qrContent = qrContent) }
         }
     }
+
 
     fun fetchVouchers() {
         viewModelScope.launch {
@@ -105,4 +121,44 @@ class ShoppingViewModel @Inject constructor(
             }
         }
     }
+
+    fun fetchAccumulatedDiscount() {
+        viewModelScope.launch {
+            val user = userDataStore.getLoggedInUser()
+            val userNickname = user.nickname
+            val userUuid = user.uuid ?: throw IllegalStateException("User is not logged in")
+
+            fetchAccumulatedDiscountUseCase(userNickname, userUuid).onSuccess { discount ->
+                _uiState.update {
+                    it.copy(accumulatedDiscount = discount.getOrNull() ?: BigDecimal.ZERO)
+                }
+            }.onFailure {
+                _uiState.update { it.copy(error = "Failed to fetch accumulated discount") }
+            }
+        }
+    }
+
+
+
+    fun setUseVouchers(enabled: Boolean) {
+        if (enabled && _uiState.value.vouchers.isEmpty()) {
+            _uiState.update { it.copy(error = "You do not have any vouchers.") }
+        } else {
+            val randomVoucher = _uiState.value.vouchers.randomOrNull()
+            if (enabled && randomVoucher != null) {
+                _uiState.update { it.copy(useVouchers = true, appliedVoucher = randomVoucher) }
+            } else {
+                _uiState.update { it.copy(useVouchers = false, appliedVoucher = null) }
+            }
+        }
+    }
+
+
+    fun setUseAccumulatedDiscount(use: Boolean) {
+        _uiState.update {
+            it.copy(useAccumulatedDiscount = use)
+        }
+    }
+
+
 }

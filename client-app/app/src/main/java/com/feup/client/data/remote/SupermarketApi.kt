@@ -7,6 +7,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import java.math.BigDecimal
 
 interface SupermarketApi {
 
@@ -28,4 +29,11 @@ interface SupermarketApi {
         @Query("nonce") nonce: String,
         @Query("signature") signature: String,
     ): List<TransactionDto>
+
+    @GET("/api/accumulated-discount")
+    suspend fun getAccumulatedDiscount(
+        @Query("userUuid") userUuid: String,
+        @Query("nonce") nonce: String,
+        @Query("signature") signature: String
+    ): BigDecimal
 }

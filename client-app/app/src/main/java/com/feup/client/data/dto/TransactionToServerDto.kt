@@ -1,6 +1,6 @@
-package com.feup.terminal.data.dto
+package com.feup.client.data.dto
 
-import com.feup.terminal.domain.model.Product
+import com.feup.client.domain.model.Product
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,4 +12,3 @@ data class TransactionToServerDto(
     val useAccumulatedDiscount: Boolean,
     val signature: String
 )
-

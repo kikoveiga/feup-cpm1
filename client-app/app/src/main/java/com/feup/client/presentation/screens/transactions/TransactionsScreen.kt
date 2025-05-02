@@ -145,7 +145,7 @@ fun TransactionsScreen(viewModel: TransactionsViewModel = hiltViewModel()) {
 
                                         if (transaction.discount > 0.0) {
                                             Text(
-                                                text = "Discount: ${transaction.discount}%",
+                                                text = "Accumulated Discount used: ${transaction.discount}€",
                                                 style = MaterialTheme.typography.bodySmall
                                             )
                                         }

@@ -1,5 +1,6 @@
 package com.feup.client.domain.usecases
 
+import com.feup.client.data.dto.TransactionToServerDto
 import com.feup.client.domain.crypto.CryptoManager
 import com.feup.client.domain.model.Product
 import com.feup.client.domain.model.Transaction
@@ -7,25 +8,30 @@ import com.feup.client.domain.model.Voucher
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
+
 class GenerateTransactionQrUseCase @Inject constructor(
     private val cryptoManager: CryptoManager
 ) {
+    fun invoke(
+        userUuid: String,
+        products: List<Product>,
+        useAccumulatedDiscount: Boolean,
+        voucherId: String?
+    ): TransactionToServerDto {
+        val date = System.currentTimeMillis().toString()
 
-    fun invoke(userUuid: String, products: List<Product>, discount: Double = 0.0, voucher: Voucher? = null): Transaction {
-
-        val totalPrice = products.sumOf { it.price * it.quantity } - discount
-        return Transaction(
+        return TransactionToServerDto(
             userUuid = userUuid,
-            date = System.currentTimeMillis().toString(),
+            date = date,
             products = products,
-            price = totalPrice,
-            discount = discount,
-            voucherUsed = voucher
+            voucherId = voucherId,
+            useAccumulatedDiscount = useAccumulatedDiscount,
+            signature = "ZmFrZV9zaWduYXR1cmU="
         )
     }
 
-    fun toQrContent(transaction: Transaction): String {
-        val jsonString = Json.encodeToString(transaction)
+    fun toQrContent(dto: TransactionToServerDto): String {
+        val jsonString = Json.encodeToString(dto)
         val jsonBytes = jsonString.toByteArray()
         return cryptoManager.encodeToBase64(jsonBytes)
     }

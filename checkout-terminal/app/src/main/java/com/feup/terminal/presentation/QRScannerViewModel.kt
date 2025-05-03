@@ -2,11 +2,9 @@ package com.feup.terminal.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feup.terminal.data.dto.ProductDto
 import com.feup.terminal.data.dto.TransactionFromServerDto
 import com.feup.terminal.data.dto.TransactionToServerDto
 import com.feup.terminal.data.remote.TerminalApi
-import com.feup.terminal.domain.model.Transaction
 import com.feup.terminal.domain.usecases.ScanTransactionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -53,7 +51,6 @@ class QRScannerViewModel @Inject constructor(
             }
         }
     }
-
 
     private fun validateTransaction(transactionData: TransactionToServerDto): Boolean {
         if (transactionData.userUuid.isBlank()) return false

@@ -2,7 +2,6 @@ package com.feup.terminal.domain.usecases
 
 import com.feup.terminal.data.dto.TransactionToServerDto
 import com.feup.terminal.domain.crypto.CryptoManager
-import com.feup.terminal.domain.model.Transaction
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 

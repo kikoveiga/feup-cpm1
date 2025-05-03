@@ -2,9 +2,9 @@ package com.feup.client.presentation.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.feup.client.domain.usecases.AuthUserUseCase
 import com.feup.client.domain.model.PaymentCard
 import com.feup.client.domain.model.PaymentCardType
+import com.feup.client.domain.usecases.AuthUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,22 +20,13 @@ class AuthViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState
 
-    val isFormValid: Boolean
-        get() = _uiState.value.run {
-            name.isNotBlank()
-                    && nickname.isNotBlank()
-                    && password.isNotBlank()
-                    && paymentCardNumber.isNotBlank()
-                    && paymentCardExpirationDate.isNotBlank()
-        }
+    val isLoginFormValid: Boolean
+        get() = _uiState.value.run { nickname.length >= 4 && password.length >= 4}
 
-    fun onNameChanged(name: String) {
-        if (name.length > 30) {
-            _uiState.update { it.copy(nameError = "Name too long") }
-        } else {
-            _uiState.update { it.copy(name = name) }
+    val isRegisterFormValid: Boolean
+        get() = isLoginFormValid && _uiState.value.run {
+            name.length >= 2 && paymentCardNumber.length >= 12
         }
-    }
 
     fun onNicknameChanged(nickname: String) {
         _uiState.update { it.copy(nickname = nickname) }
@@ -43,6 +34,10 @@ class AuthViewModel @Inject constructor(
 
     fun onPasswordChanged(password: String) {
         _uiState.update { it.copy(password = password) }
+    }
+
+    fun onNameChanged(name: String) {
+        _uiState.update { it.copy(name = name) }
     }
 
     fun onPaymentCardTypeChanged(paymentCardType: PaymentCardType) {
@@ -64,7 +59,6 @@ class AuthViewModel @Inject constructor(
     fun registerUser() {
         viewModelScope.launch {
 
-            _uiState.update { it.copy(showValidationErrors = true) }
             val result = _uiState.value.let {
                 authUserUseCase.register(
                     name = it.name,

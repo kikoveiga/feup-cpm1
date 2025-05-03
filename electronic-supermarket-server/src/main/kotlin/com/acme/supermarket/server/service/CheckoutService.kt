@@ -65,8 +65,8 @@ class CheckoutService(
 
         var voucherDiscount = BigDecimal.ZERO
         var voucher: Voucher? = null
-        if (transaction.voucherId != null) {
-            voucher = voucherRepository.findByUuid(transaction.voucherId)
+        if (transaction.voucherUuid != null) {
+            voucher = voucherRepository.findByUuid(transaction.voucherUuid)
 
             if (voucher != null && voucher.user.userUuid == transaction.userUuid && !voucher.used) {
                 voucherDiscount = totalValue.multiply(BigDecimal(0.15))
@@ -75,16 +75,16 @@ class CheckoutService(
 
             } else {
                 return TransactionFromServerDto(
-                    false,
-                    BigDecimal.ZERO,
-                    BigDecimal.ZERO,
-                    "Invalid voucher, used or does not belong to the user."
+                    isSuccess = false,
+                    totalPaid = BigDecimal.ZERO,
+                    totalAccDiscount = BigDecimal.ZERO,
+                    message = "Invalid voucher, used or does not belong to the user."
                 )
             }
         }
 
         val newTotalSpent = totalValue.add(user.totalSpent)
-        generateVouchersIfEligible(transaction.userUuid,newTotalSpent)
+        val isVoucherCreated = generateVouchersIfEligible(transaction.userUuid,newTotalSpent)
 
         userService.updateUserHistory(transaction.userUuid, newTotalSpent, accumulatedDiscount)
         val requestDate = LocalDateTime.ofInstant(
@@ -125,8 +125,26 @@ class CheckoutService(
             isSuccess = true,
             totalPaid = totalValue.setScale(2, RoundingMode.HALF_UP),
             totalAccDiscount = accumulatedDiscount.setScale(2, RoundingMode.HALF_UP),
+            isVoucherCreated = isVoucherCreated,
             message = "Success"
         )
+    }
+
+    private fun verifySignature(transaction: TransactionToServerDto): Boolean {
+        val user = userRepository.findByUserUuid(transaction.userUuid) ?: return false
+        val publicKey = getPublicKeyFromBase64(user.ecPublicKey)
+        val message = generateMessage(transaction)
+
+        val signature = Signature.getInstance("SHA256withECDSA")
+        signature.initVerify(publicKey)
+        signature.update(message.toByteArray())
+
+        return signature.verify(Base64.getDecoder().decode(transaction.signature))
+    }
+
+    private fun generateMessage(transaction: TransactionToServerDto): String {
+        val itemsString = transaction.products.joinToString(",") { "${it.productUuid}:${it.price}" }
+        return "${transaction.userUuid}|$itemsString|${transaction.voucherUuid ?: ""}|${transaction.useAccumulatedDiscount}"
     }
 
     private fun calculateTotalValue(items: List<ProductDto>): BigDecimal {
@@ -140,15 +158,15 @@ class CheckoutService(
         return userRepository.getAccumulatedDiscount(userId) ?: BigDecimal.ZERO
     }
 
-    private fun generateVouchersIfEligible(userId: String, newTotal: BigDecimal) {
-        val user = userRepository.findByUserUuid(userId) ?: return
+    private fun generateVouchersIfEligible(userId: String, newTotal: BigDecimal): Boolean {
+        val user = userRepository.findByUserUuid(userId) ?: return false
 
         val oldTotal = user.totalSpent
         val oldVouchers = oldTotal.divide(BigDecimal(100), 0, RoundingMode.DOWN).toInt()
         val newVouchers = newTotal.divide(BigDecimal(100), 0, RoundingMode.DOWN).toInt()
         val vouchersToGenerate = newVouchers - oldVouchers
 
-        if (vouchersToGenerate <= 0) return
+        if (vouchersToGenerate <= 0) return false
 
         val vouchers = mutableListOf<Voucher>()
         repeat(vouchersToGenerate) {
@@ -160,6 +178,7 @@ class CheckoutService(
             vouchers.add(voucherRepository.save(voucher))
         }
 
+        return true
     }
 
     private fun validateRequest(transaction: TransactionToServerDto) {

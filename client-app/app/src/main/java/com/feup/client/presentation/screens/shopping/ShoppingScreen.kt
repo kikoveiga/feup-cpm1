@@ -156,44 +156,46 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Use Vouchers: ${state.value.vouchers.size}")
-                Switch(
-                    checked = useVouchers.value,
-                    onCheckedChange = {
-                        if (state.value.vouchers.isNotEmpty()) {
-                            useVouchers.value = it
-                            viewModel.setUseVouchers(it)
-                        }
-                    },
-                    enabled = state.value.vouchers.isNotEmpty()
-                )
-            }
+            if (state.value.scannedProducts.isNotEmpty()) {
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Use Vouchers: ${state.value.vouchers.size}")
+                    Switch(
+                        checked = useVouchers.value,
+                        onCheckedChange = {
+                            if (state.value.vouchers.isNotEmpty()) {
+                                useVouchers.value = it
+                                viewModel.setUseVouchers(it)
+                            }
+                        },
+                        enabled = state.value.vouchers.isNotEmpty()
+                    )
+                }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                val discountFormatted = "%.2f€".format(state.value.accumulatedDiscount)
-                Text("Use Accumulated Discount: $discountFormatted")
-                Switch(
-                    checked = useAccumulatedDiscount.value,
-                    onCheckedChange = {
-                        useAccumulatedDiscount.value = it
-                        viewModel.setUseAccumulatedDiscount(it)
-                    },
-                    enabled = state.value.accumulatedDiscount > BigDecimal.ZERO
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    val discountFormatted = "%.2f€".format(state.value.accumulatedDiscount)
+                    Text("Use Accumulated Discount: $discountFormatted")
+                    Switch(
+                        checked = useAccumulatedDiscount.value,
+                        onCheckedChange = {
+                            useAccumulatedDiscount.value = it
+                            viewModel.setUseAccumulatedDiscount(it)
+                        },
+                        enabled = state.value.accumulatedDiscount > BigDecimal.ZERO
+                    )
+                }
             }
 
 
@@ -278,6 +280,7 @@ fun ShoppingScreen(viewModel: ShoppingViewModel = hiltViewModel()) {
                 if (state.value.scannedProducts.isNotEmpty()) {
                     Button(
                         onClick = {
+                            viewModel.updateTotalPrice()
                             showCheckoutDialog.value = true
                             viewModel.generateTransactionQrContent()
                         },

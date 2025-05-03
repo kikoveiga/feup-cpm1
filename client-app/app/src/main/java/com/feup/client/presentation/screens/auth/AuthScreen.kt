@@ -1,28 +1,29 @@
 package com.feup.client.presentation.screens.auth
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,13 +36,15 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -51,6 +54,7 @@ import com.feup.client.R
 import com.feup.client.domain.model.PaymentCardType
 import com.feup.client.presentation.components.MonthYearPicker
 import com.feup.client.presentation.components.MyTopAppBar
+import com.feup.client.presentation.theme.HighlightOrange
 import java.util.Calendar
 import java.util.Locale
 
@@ -59,6 +63,7 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
     val state = viewModel.uiState.collectAsState()
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isLoginMode by remember { mutableStateOf(true) }
+    var openMonthYearPicker by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -92,26 +97,10 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
 
             Column {
 
-                if (!isLoginMode) {
-                    OutlinedTextField(
-                        value = state.value.name,
-                        onValueChange = viewModel::onNameChanged,
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Name") },
-                        supportingText = {
-                            state.value.nameError?.let {
-                                Text(it)
-                            }
-                        },
-                        isError = state.value.nameError != null,
-                        singleLine = true,
-                    )
-                }
-
                 OutlinedTextField(
                     value = state.value.nickname,
                     onValueChange = { input ->
-                        if (!input.contains(" ")) {
+                        if (!input.contains(" ") && input.length <= 20) {
                             viewModel.onNicknameChanged(input)
                         }
                     },
@@ -128,7 +117,7 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
                 OutlinedTextField(
                     value = state.value.password,
                     onValueChange = { input ->
-                        if (!input.contains(" ")) {
+                        if (!input.contains(" ") && input.length <= 20) {
                             viewModel.onPasswordChanged(input)
                         }
                     },
@@ -151,7 +140,7 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
                         }
                     },
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = if (isLoginMode) ImeAction.Done else ImeAction.Next),
                     keyboardActions = KeyboardActions(onDone = {
                         focusManager.clearFocus()
                         keyboardController?.hide()
@@ -160,9 +149,28 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
                 )
 
                 if (!isLoginMode) {
-                    PaymentCardTypeDropdown(
-                        state.value.paymentCardType,
-                        viewModel::onPaymentCardTypeChanged
+
+                    OutlinedTextField(
+                        value = state.value.name,
+                        onValueChange = { input ->
+                            if (!input.contains(" ") && input.length <= 30) {
+                                viewModel.onNameChanged(input)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Name") },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Next
+                        ),
+                        singleLine = true,
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    PaymentCardTypeToggle(
+                        selected = state.value.paymentCardType,
+                        onSelected = viewModel::onPaymentCardTypeChanged
                     )
 
                     OutlinedTextField(
@@ -178,12 +186,20 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
                         ),
+                        keyboardActions = KeyboardActions(onNext = {
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                            openMonthYearPicker = true
+                        }),
                         singleLine = true,
                     )
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     MonthYearPickerField(
                         selectedDateFormatted = state.value.paymentCardExpirationDate,
-                        onDateSelectedFormatted = viewModel::onPaymentCardExpirationDateChanged
+                        onDateSelectedFormatted = viewModel::onPaymentCardExpirationDateChanged,
+                        showPickerExternally = openMonthYearPicker
                     )
                 }
 
@@ -191,14 +207,21 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
 
                 Button(
                     onClick = {
-                        if (isLoginMode) viewModel.loginUser()
-                        else viewModel.registerUser()
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+
+                        if (isLoginMode) viewModel.loginUser() else viewModel.registerUser()
                     },
+                    enabled = if (isLoginMode) viewModel.isLoginFormValid else viewModel.isRegisterFormValid
                 ) {
                     Text(if (isLoginMode) "Login" else "Register")
                 }
 
-                TextButton(onClick = { isLoginMode = !isLoginMode }) {
+                TextButton(onClick = {
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                    isLoginMode = !isLoginMode
+                }) {
                     Text(if (isLoginMode) "Don't have an account? Register" else "Already have an account? Login")
                 }
             }
@@ -210,13 +233,17 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
 fun MonthYearPickerField(
     selectedDateFormatted: String,
     onDateSelectedFormatted: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showPickerExternally: Boolean = false,
 ) {
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     var showPicker by remember { mutableStateOf(false) }
     var pickedMonth by remember { mutableIntStateOf(-1) }
     var pickedYear by remember { mutableIntStateOf(-1) }
 
-    // Parse current MM/YY if provided
+    // Parse MM/YY
     LaunchedEffect(selectedDateFormatted) {
         if (selectedDateFormatted.length == 5) {
             val parts = selectedDateFormatted.split("/")
@@ -225,27 +252,51 @@ fun MonthYearPickerField(
         }
     }
 
-    OutlinedTextField(
-        value = selectedDateFormatted,
-        onValueChange = {},
-        label = { Text("Expiration Date") },
-        placeholder = { Text("MM/YY") },
-        trailingIcon = {
-            Icon(Icons.Default.DateRange, contentDescription = "Select month/year")
-        },
+    // Open externally
+    LaunchedEffect(showPickerExternally) {
+        if (showPickerExternally) {
+            focusManager.clearFocus()
+            keyboardController?.hide()
+            showPicker = true
+        }
+    }
+
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .pointerInput(Unit) {
-                awaitEachGesture {
-                    awaitFirstDown(pass = PointerEventPass.Initial)
-                    val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                    if (upEvent != null) {
-                        showPicker = true
-                    }
-                }
-            },
-        readOnly = true,
-    )
+            .height(56.dp)
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .clickable {
+                focusManager.clearFocus()
+                keyboardController?.hide()
+                showPicker = true
+            }
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Expiration Date")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = selectedDateFormatted.ifBlank { "MM/YY" },
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (selectedDateFormatted.isNotBlank())
+                        MaterialTheme.colorScheme.onSurface
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(Icons.Default.DateRange, contentDescription = null)
+            }
+        }
+    }
 
     if (showPicker) {
         MonthYearPicker(
@@ -262,40 +313,43 @@ fun MonthYearPickerField(
 }
 
 @Composable
-fun PaymentCardTypeDropdown(
-    selectedPaymentCardType: PaymentCardType?,
-    onPaymentCardTypeSelected: (PaymentCardType) -> Unit,
+fun PaymentCardTypeToggle(
+    selected: PaymentCardType?,
+    onSelected: (PaymentCardType) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    val options = PaymentCardType.entries
 
-    OutlinedTextField(
-        value = selectedPaymentCardType.toString(),
-        onValueChange = {},
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        readOnly = true,
-        label = { Text("Card Type") },
-        trailingIcon = {
-            IconButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Dropdown"
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Card Type:",
+            modifier = Modifier.padding(end = 8.dp),
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        options.forEach { option ->
+            val isSelected = selected == option
+            val backgroundColor = if (isSelected) HighlightOrange else Color.LightGray
+            val contentColor = if (isSelected) Color.White else Color.Black
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(backgroundColor)
+                    .clickable { onSelected(option) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = option.name.lowercase().replaceFirstChar { it.uppercase() },
+                    color = contentColor,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
-        },
-    )
-
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false }
-    ) {
-        PaymentCardType.entries.forEach { paymentCardType ->
-            DropdownMenuItem(
-                text = { Text(paymentCardType.toString()) },
-                onClick = {
-                    onPaymentCardTypeSelected(paymentCardType)
-                    expanded = false
-                }
-            )
         }
     }
 }

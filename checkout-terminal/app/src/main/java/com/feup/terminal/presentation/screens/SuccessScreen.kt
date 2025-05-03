@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.feup.terminal.data.dto.TransactionFromServerDto
+import java.math.BigDecimal
 
 @Composable
 fun SuccessScreen(
@@ -52,12 +53,23 @@ fun SuccessScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "Accumulated Discount: €${transactionResult.totalAccDiscount.setScale(2)}",
-                fontSize = 18.sp,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            if (transactionResult.totalAccDiscount > BigDecimal.ZERO) {
+                Text(
+                    text = "Accumulated Discount: €${transactionResult.totalAccDiscount.setScale(2)}",
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (transactionResult.isVoucherCreated) {
+                Text(
+                    text = "Voucher Created!",
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             transactionResult.message?.let { message ->
                 Text(

@@ -150,13 +150,6 @@ fun TransactionsScreen(viewModel: TransactionsViewModel = hiltViewModel()) {
                                             )
                                         }
 
-                                        if (transaction.voucherUuid != null) {
-                                            Text(
-                                                text = "Voucher used: ${transaction.voucherUuid}",
-                                                style = MaterialTheme.typography.bodySmall
-                                            )
-                                        }
-
                                         Spacer(modifier = Modifier.height(8.dp))
 
                                         transaction.products.forEach { product ->

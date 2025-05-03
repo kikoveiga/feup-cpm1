@@ -38,7 +38,6 @@ class ShoppingViewModel @Inject constructor(
                 updated[product.productUuid] = updatedProduct
                 state.copy(scannedProducts = updated)
             }
-            updateTotalPrice()
         }.onFailure {
             _uiState.update { it.copy(error = "Failed to scan product") }
         }
@@ -63,11 +62,9 @@ class ShoppingViewModel @Inject constructor(
 
             state.copy(scannedProducts = updated)
         }
-
-        updateTotalPrice()
     }
 
-    private fun updateTotalPrice() {
+    fun updateTotalPrice() {
         val total = _uiState.value.scannedProducts.values.sumOf { it.price * it.quantity }
         _uiState.update { it.copy(totalPrice = total) }
     }

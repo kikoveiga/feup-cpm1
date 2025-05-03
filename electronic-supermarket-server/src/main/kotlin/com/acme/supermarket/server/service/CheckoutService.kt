@@ -3,13 +3,15 @@ package com.acme.supermarket.server.service
 import com.acme.supermarket.server.domain.Product
 import com.acme.supermarket.server.domain.Transaction
 import com.acme.supermarket.server.domain.TransactionProduct
-import java.math.RoundingMode
 import com.acme.supermarket.server.domain.Voucher
-import com.acme.supermarket.server.dto.*
+import com.acme.supermarket.server.dto.ProductDto
+import com.acme.supermarket.server.dto.TransactionFromServerDto
+import com.acme.supermarket.server.dto.TransactionToServerDto
 import com.acme.supermarket.server.repository.*
 import org.apache.coyote.BadRequestException
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -128,23 +130,6 @@ class CheckoutService(
             isVoucherCreated = isVoucherCreated,
             message = "Success"
         )
-    }
-
-    private fun verifySignature(transaction: TransactionToServerDto): Boolean {
-        val user = userRepository.findByUserUuid(transaction.userUuid) ?: return false
-        val publicKey = getPublicKeyFromBase64(user.ecPublicKey)
-        val message = generateMessage(transaction)
-
-        val signature = Signature.getInstance("SHA256withECDSA")
-        signature.initVerify(publicKey)
-        signature.update(message.toByteArray())
-
-        return signature.verify(Base64.getDecoder().decode(transaction.signature))
-    }
-
-    private fun generateMessage(transaction: TransactionToServerDto): String {
-        val itemsString = transaction.products.joinToString(",") { "${it.productUuid}:${it.price}" }
-        return "${transaction.userUuid}|$itemsString|${transaction.voucherUuid ?: ""}|${transaction.useAccumulatedDiscount}"
     }
 
     private fun calculateTotalValue(items: List<ProductDto>): BigDecimal {
